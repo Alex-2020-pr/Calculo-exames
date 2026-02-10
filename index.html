@@ -2,68 +2,93 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Calculadora PACS Cloud</title>
+<title>Simulador Profissional PACS Cloud</title>
 
 <style>
 body{
 font-family:Arial;
-background:#f4f6f9;
+background:#eef2f7;
 padding:30px;
 }
 .container{
 background:white;
-padding:25px;
-border-radius:10px;
-max-width:900px;
+padding:30px;
+border-radius:12px;
+max-width:1100px;
 margin:auto;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
-h1{color:#1c3d5a}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}
-input{padding:6px;width:100px}
-.result{
-margin-top:20px;
-background:#eef3f8;
-padding:15px;
-border-radius:8px;
-font-size:18px;
-}
+h1{color:#16324f}
+h2{margin-top:25px;color:#244e75}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:8px;border-bottom:1px solid #ddd}
+input{padding:6px;width:90px}
 button{
-background:#1c3d5a;
+background:#16324f;
 color:white;
-padding:10px 15px;
+padding:12px 18px;
 border:none;
 border-radius:6px;
+margin-top:20px;
 cursor:pointer;
-margin-top:15px;
+font-size:16px;
+}
+.result{
+margin-top:25px;
+background:#f1f6fb;
+padding:20px;
+border-radius:8px;
+font-size:18px;
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
-<h1>Calculadora de Armazenamento PACS</h1>
 
-<label>Valor Oracle Cloud (R$/GB):</label>
-<input type="number" id="oracle" value="0.12"><br><br>
+<h1>Simulador Profissional de Armazenamento PACS</h1>
 
-<label>Valor Wasabi Backup (R$/GB):</label>
+<h2>Custos Cloud</h2>
+
+Oracle Storage (R$/GB):
+<input type="number" id="oracle" value="0.12">
+
+Wasabi Backup (R$/GB):
 <input type="number" id="wasabi" value="0.04">
+
+Fator crescimento anual (%):
+<input type="number" id="crescimento" value="20">
+
+<h2>Modalidades e Exames/mês</h2>
 
 <table>
 <tr><th>Modalidade</th><th>Exames/mês</th><th>Média MB/exame</th></tr>
 
 <tr><td>Raio-X</td><td><input type="number" id="rx"></td><td>20</td></tr>
 <tr><td>Mamografia</td><td><input type="number" id="mg"></td><td>150</td></tr>
-<tr><td>Ultrassom</td><td><input type="number" id="us"></td><td>50</td></tr>
-<tr><td>Tomografia</td><td><input type="number" id="ct"></td><td>400</td></tr>
-<tr><td>Ressonância</td><td><input type="number" id="rm"></td><td>700</td></tr>
-<tr><td>Odonto 3D</td><td><input type="number" id="cbct"></td><td>300</td></tr>
+<tr><td>Tomossíntese</td><td><input type="number" id="tomo"></td><td>800</td></tr>
+<tr><td>Densitometria</td><td><input type="number" id="dens"></td><td>15</td></tr>
+
+<tr><td>Ultrassom Geral</td><td><input type="number" id="us"></td><td>50</td></tr>
+<tr><td>Doppler</td><td><input type="number" id="doppler"></td><td>80</td></tr>
+<tr><td>Ecocardiograma</td><td><input type="number" id="eco"></td><td>400</td></tr>
+
+<tr><td>Tomografia (CT)</td><td><input type="number" id="ct"></td><td>400</td></tr>
+<tr><td>Ressonância (RM)</td><td><input type="number" id="rm"></td><td>800</td></tr>
+
+<tr><td>Odonto Panorâmico</td><td><input type="number" id="pano"></td><td>25</td></tr>
+<tr><td>CBCT 3D</td><td><input type="number" id="cbct"></td><td>350</td></tr>
+
+<tr><td>Endoscopia / Vídeo</td><td><input type="number" id="endo"></td><td>1200</td></tr>
+<tr><td>Hemodinâmica</td><td><input type="number" id="hemo"></td><td>2000</td></tr>
+
+<tr><td>ECG / Documentos</td><td><input type="number" id="ecg"></td><td>3</td></tr>
+<tr><td>Fotografia Clínica</td><td><input type="number" id="foto"></td><td>10</td></tr>
 
 </table>
 
-<button onclick="calcular()">Calcular Espaço e Custos</button>
+<button onclick="calcular()">Calcular Armazenamento e Custos</button>
 
 <div class="result" id="resultado"></div>
 
@@ -73,13 +98,13 @@ margin-top:15px;
 
 function calcular(){
 
-const medias = {
-rx:20,
-mg:150,
-us:50,
-ct:400,
-rm:700,
-cbct:300
+const medias={
+rx:20, mg:150, tomo:800, dens:15,
+us:50, doppler:80, eco:400,
+ct:400, rm:800,
+pano:25, cbct:350,
+endo:1200, hemo:2000,
+ecg:3, foto:10
 };
 
 let totalMB=0;
@@ -89,22 +114,23 @@ let qtd=parseFloat(document.getElementById(key).value)||0;
 totalMB+=qtd*medias[key];
 }
 
-let totalGBMes=totalMB/1024;
-let totalGBAno=totalGBMes*12;
+let gbMes=totalMB/1024;
+let crescimento=(parseFloat(document.getElementById("crescimento").value)||0)/100;
+let gbAno=(gbMes*12)*(1+crescimento);
 
-let valorOracle=parseFloat(document.getElementById("oracle").value)||0;
-let valorWasabi=parseFloat(document.getElementById("wasabi").value)||0;
+let oracle=parseFloat(document.getElementById("oracle").value)||0;
+let wasabi=parseFloat(document.getElementById("wasabi").value)||0;
 
-let custoOracle=totalGBMes*valorOracle;
-let custoWasabi=totalGBMes*valorWasabi;
+let custoOracle=gbMes*oracle;
+let custoWasabi=gbMes*wasabi;
 
 document.getElementById("resultado").innerHTML=`
-<b>Espaço mensal:</b> ${totalGBMes.toFixed(2)} GB<br>
-<b>Espaço anual:</b> ${totalGBAno.toFixed(2)} GB<br><br>
+<b>Armazenamento mensal:</b> ${gbMes.toFixed(2)} GB<br>
+<b>Armazenamento anual (com crescimento):</b> ${gbAno.toFixed(2)} GB<br><br>
 
-<b>Custo Oracle/mês:</b> R$ ${custoOracle.toFixed(2)}<br>
-<b>Custo Wasabi Backup/mês:</b> R$ ${custoWasabi.toFixed(2)}<br>
-<b>Custo Total/mês:</b> R$ ${(custoOracle+custoWasabi).toFixed(2)}
+<b>Custo Oracle mensal:</b> R$ ${custoOracle.toFixed(2)}<br>
+<b>Custo Wasabi mensal:</b> R$ ${custoWasabi.toFixed(2)}<br>
+<b>Custo Total mensal:</b> R$ ${(custoOracle+custoWasabi).toFixed(2)}
 `;
 
 }
