@@ -1,141 +1,846 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Simulador Profissional PACS Cloud</title>
-
-<style>
-body{
-font-family:Arial;
-background:#eef2f7;
-padding:30px;
-}
-.container{
-background:white;
-padding:30px;
-border-radius:12px;
-max-width:1100px;
-margin:auto;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
-}
-h1{color:#16324f}
-h2{margin-top:25px;color:#244e75}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{padding:8px;border-bottom:1px solid #ddd}
-input{padding:6px;width:90px}
-button{
-background:#16324f;
-color:white;
-padding:12px 18px;
-border:none;
-border-radius:6px;
-margin-top:20px;
-cursor:pointer;
-font-size:16px;
-}
-.result{
-margin-top:25px;
-background:#f1f6fb;
-padding:20px;
-border-radius:8px;
-font-size:18px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Profissional PACS Cloud</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap">
+    <style>
+        :root {
+            --primary: #16324f;
+            --secondary: #1e4d7b;
+            --accent: #2a7de1;
+            --accent-light: #4a9cf5;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 10px;
+            --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #eef2f7 0%, #f8f9fa 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-title i {
+            color: var(--accent);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .input-label span:last-child {
+            color: var(--gray);
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.1);
+        }
+        
+        .cost-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .cost-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .modalidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .modalidades-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .modalidade-item {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 18px;
+            border-left: 4px solid var(--accent);
+            transition: var(--transition);
+        }
+        
+        .modalidade-item:hover {
+            background: #f0f5ff;
+        }
+        
+        .modalidade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .modalidade-name {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .modalidade-size {
+            color: var(--gray);
+            font-size: 0.9rem;
+            background: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .modalidade-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modalidade-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: right;
+        }
+        
+        .modalidade-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .modalidade-input span {
+            font-weight: 600;
+            color: var(--gray);
+            min-width: 80px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 576px) {
+            .buttons {
+                flex-direction: column;
+            }
+        }
+        
+        .btn {
+            padding: 16px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: var(--transition);
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+        
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #dde1e7;
+        }
+        
+        .results-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 35px;
+        }
+        
+        .results-card .card-title {
+            color: white;
+            border-bottom-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .result-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        
+        .result-box:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+        
+        .result-label {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .result-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: white;
+        }
+        
+        .result-unit {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .cost-comparison {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .cost-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .cost-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .cost-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cost-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .details-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .details-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .details-table th {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .details-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .highlight {
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--gray-light);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .disclaimer {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: var(--gray);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .disclaimer i {
+            color: var(--warning);
+            margin-right: 10px;
+        }
+        
+        .currency {
+            position: relative;
+        }
+        
+        .currency::before {
+            content: "R$";
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .currency input {
+            padding-left: 45px;
+        }
+        
+        .percentage {
+            position: relative;
+        }
+        
+        .percentage::after {
+            content: "%";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .percentage input {
+            padding-right: 45px;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div>
+                    <h1>Simulador PACS Cloud</h1>
+                    <p class="subtitle">Calcule o armazenamento necessário e os custos mensais para seu sistema PACS em nuvem</p>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-cogs"></i> Configurações de Custo</h2>
+                
+                <div class="cost-inputs">
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Oracle Storage</span>
+                            <span>R$/GB</span>
+                        </div>
+                        <div class="currency">
+                            <input type="number" id="oracle" class="input-field" step="0.01" min="0" value="0.12" placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Wasabi Backup</span>
+                            <span>R$/GB</span>
+                        </div>
+                        <div class="currency">
+                            <input type="number" id="wasabi" class="input-field" step="0.01" min="0" value="0.04" placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Crescimento Anual</span>
+                            <span>% por ano</span>
+                        </div>
+                        <div class="percentage">
+                            <input type="number" id="crescimento" class="input-field" step="0.1" min="0" value="20" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Período de Retenção</span>
+                        <span>meses</span>
+                    </div>
+                    <select id="retencao" class="input-field">
+                        <option value="12">12 meses (1 ano)</option>
+                        <option value="24">24 meses (2 anos)</option>
+                        <option value="36">36 meses (3 anos)</option>
+                        <option value="60" selected>60 meses (5 anos)</option>
+                        <option value="120">120 meses (10 anos)</option>
+                    </select>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="calcular()">
+                        <i class="fas fa-calculator"></i> Calcular Armazenamento
+                    </button>
+                    <button class="btn btn-secondary" onclick="limparCampos()">
+                        <i class="fas fa-redo"></i> Limpar Campos
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-x-ray"></i> Modalidades de Exame</h2>
+                <p>Informe a quantidade média de exames por mês para cada modalidade:</p>
+                
+                <div class="modalidades-grid" id="modalidadesContainer">
+                    <!-- As modalidades serão preenchidas via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="card results-card" id="resultsSection">
+                <h2 class="card-title"><i class="fas fa-chart-line"></i> Resultados da Simulação</h2>
+                <p>Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.</p>
+                
+                <div class="results-grid" id="resultsContainer">
+                    <!-- Resultados serão preenchidos via JavaScript -->
+                </div>
+                
+                <div class="cost-comparison" id="costComparison">
+                    <!-- Comparação de custos será preenchida via JavaScript -->
+                </div>
+                
+                <div class="details-section" id="detailsSection">
+                    <!-- Detalhes por modalidade serão preenchidos via JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <strong>Nota:</strong> Esta ferramenta fornece estimativas baseadas em valores médios do setor. Os custos reais podem variar conforme o provedor de nuvem, configurações específicas e variações regionais. Recomenda-se consultar diretamente os fornecedores para orçamentos precisos.
+        </div>
+        
+        <footer>
+            <p>Simulador Profissional PACS Cloud &copy; 2023 | Desenvolvido para clínicas e hospitais</p>
+            <p>Os valores de tamanho de arquivo são baseados em médias da indústria e podem variar conforme o equipamento e configurações</p>
+        </footer>
+    </div>
 
-<div class="container">
-
-<h1>Simulador Profissional de Armazenamento PACS</h1>
-
-<h2>Custos Cloud</h2>
-
-Oracle Storage (R$/GB):
-<input type="number" id="oracle" value="0.12">
-
-Wasabi Backup (R$/GB):
-<input type="number" id="wasabi" value="0.04">
-
-Fator crescimento anual (%):
-<input type="number" id="crescimento" value="20">
-
-<h2>Modalidades e Exames/mês</h2>
-
-<table>
-<tr><th>Modalidade</th><th>Exames/mês</th><th>Média MB/exame</th></tr>
-
-<tr><td>Raio-X</td><td><input type="number" id="rx"></td><td>20</td></tr>
-<tr><td>Mamografia</td><td><input type="number" id="mg"></td><td>150</td></tr>
-<tr><td>Tomossíntese</td><td><input type="number" id="tomo"></td><td>800</td></tr>
-<tr><td>Densitometria</td><td><input type="number" id="dens"></td><td>15</td></tr>
-
-<tr><td>Ultrassom Geral</td><td><input type="number" id="us"></td><td>50</td></tr>
-<tr><td>Doppler</td><td><input type="number" id="doppler"></td><td>80</td></tr>
-<tr><td>Ecocardiograma</td><td><input type="number" id="eco"></td><td>400</td></tr>
-
-<tr><td>Tomografia (CT)</td><td><input type="number" id="ct"></td><td>400</td></tr>
-<tr><td>Ressonância (RM)</td><td><input type="number" id="rm"></td><td>800</td></tr>
-
-<tr><td>Odonto Panorâmico</td><td><input type="number" id="pano"></td><td>25</td></tr>
-<tr><td>CBCT 3D</td><td><input type="number" id="cbct"></td><td>350</td></tr>
-
-<tr><td>Endoscopia / Vídeo</td><td><input type="number" id="endo"></td><td>1200</td></tr>
-<tr><td>Hemodinâmica</td><td><input type="number" id="hemo"></td><td>2000</td></tr>
-
-<tr><td>ECG / Documentos</td><td><input type="number" id="ecg"></td><td>3</td></tr>
-<tr><td>Fotografia Clínica</td><td><input type="number" id="foto"></td><td>10</td></tr>
-
-</table>
-
-<button onclick="calcular()">Calcular Armazenamento e Custos</button>
-
-<div class="result" id="resultado"></div>
-
-</div>
-
-<script>
-
-function calcular(){
-
-const medias={
-rx:20, mg:150, tomo:800, dens:15,
-us:50, doppler:80, eco:400,
-ct:400, rm:800,
-pano:25, cbct:350,
-endo:1200, hemo:2000,
-ecg:3, foto:10
-};
-
-let totalMB=0;
-
-for(let key in medias){
-let qtd=parseFloat(document.getElementById(key).value)||0;
-totalMB+=qtd*medias[key];
-}
-
-let gbMes=totalMB/1024;
-let crescimento=(parseFloat(document.getElementById("crescimento").value)||0)/100;
-let gbAno=(gbMes*12)*(1+crescimento);
-
-let oracle=parseFloat(document.getElementById("oracle").value)||0;
-let wasabi=parseFloat(document.getElementById("wasabi").value)||0;
-
-let custoOracle=gbMes*oracle;
-let custoWasabi=gbMes*wasabi;
-
-document.getElementById("resultado").innerHTML=`
-<b>Armazenamento mensal:</b> ${gbMes.toFixed(2)} GB<br>
-<b>Armazenamento anual (com crescimento):</b> ${gbAno.toFixed(2)} GB<br><br>
-
-<b>Custo Oracle mensal:</b> R$ ${custoOracle.toFixed(2)}<br>
-<b>Custo Wasabi mensal:</b> R$ ${custoWasabi.toFixed(2)}<br>
-<b>Custo Total mensal:</b> R$ ${(custoOracle+custoWasabi).toFixed(2)}
-`;
-
-}
-
-</script>
-
+    <script>
+        // Dados das modalidades médicas
+        const modalidades = [
+            { id: 'rx', nome: 'Raio-X', tamanhoMB: 20, icone: 'fas fa-bone' },
+            { id: 'mg', nome: 'Mamografia', tamanhoMB: 150, icone: 'fas fa-female' },
+            { id: 'tomo', nome: 'Tomossíntese', tamanhoMB: 800, icone: 'fas fa-layer-group' },
+            { id: 'dens', nome: 'Densitometria', tamanhoMB: 15, icone: 'fas fa-weight' },
+            { id: 'us', nome: 'Ultrassom Geral', tamanhoMB: 50, icone: 'fas fa-wave-square' },
+            { id: 'doppler', nome: 'Doppler', tamanhoMB: 80, icone: 'fas fa-tachometer-alt' },
+            { id: 'eco', nome: 'Ecocardiograma', tamanhoMB: 400, icone: 'fas fa-heartbeat' },
+            { id: 'ct', nome: 'Tomografia (CT)', tamanhoMB: 400, icone: 'fas fa-cogs' },
+            { id: 'rm', nome: 'Ressonância (RM)', tamanhoMB: 800, icone: 'fas fa-magnet' },
+            { id: 'pano', nome: 'Odonto Panorâmico', tamanhoMB: 25, icone: 'fas fa-tooth' },
+            { id: 'cbct', nome: 'CBCT 3D', tamanhoMB: 350, icone: 'fas fa-cube' },
+            { id: 'endo', nome: 'Endoscopia / Vídeo', tamanhoMB: 1200, icone: 'fas fa-video' },
+            { id: 'hemo', nome: 'Hemodinâmica', tamanhoMB: 2000, icone: 'fas fa-heart' },
+            { id: 'ecg', nome: 'ECG / Documentos', tamanhoMB: 3, icone: 'fas fa-file-medical' },
+            { id: 'foto', nome: 'Fotografia Clínica', tamanhoMB: 10, icone: 'fas fa-camera' }
+        ];
+        
+        // Inicializar a interface com as modalidades
+        function inicializarModalidades() {
+            const container = document.getElementById('modalidadesContainer');
+            container.innerHTML = '';
+            
+            modalidades.forEach(modalidade => {
+                const item = document.createElement('div');
+                item.className = 'modalidade-item';
+                
+                // Valor de exemplo aleatório entre 50 e 500
+                const exemplo = Math.floor(Math.random() * 450) + 50;
+                
+                item.innerHTML = `
+                    <div class="modalidade-header">
+                        <div class="modalidade-name">
+                            <i class="${modalidade.icone}"></i> ${modalidade.nome}
+                        </div>
+                        <div class="modalidade-size">${modalidade.tamanhoMB} MB/exame</div>
+                    </div>
+                    <div class="modalidade-input">
+                        <input type="number" 
+                               id="${modalidade.id}" 
+                               min="0" 
+                               step="1" 
+                               placeholder="${exemplo}"
+                               data-tamanho="${modalidade.tamanhoMB}">
+                        <span>exames/mês</span>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // Função principal de cálculo
+        function calcular() {
+            // Obter valores de custo
+            const oracle = parseFloat(document.getElementById('oracle').value) || 0;
+            const wasabi = parseFloat(document.getElementById('wasabi').value) || 0;
+            const crescimento = parseFloat(document.getElementById('crescimento').value) || 0;
+            const retencao = parseInt(document.getElementById('retencao').value) || 60;
+            
+            // Calcular total de armazenamento
+            let totalExamesMes = 0;
+            let totalMBMes = 0;
+            const detalhes = [];
+            
+            modalidades.forEach(modalidade => {
+                const input = document.getElementById(modalidade.id);
+                const quantidade = parseFloat(input.value) || 0;
+                const tamanhoMB = parseFloat(input.dataset.tamanho);
+                
+                if (quantidade > 0) {
+                    const tamanhoTotalMB = quantidade * tamanhoMB;
+                    totalExamesMes += quantidade;
+                    totalMBMes += tamanhoTotalMB;
+                    
+                    detalhes.push({
+                        nome: modalidade.nome,
+                        quantidade: quantidade,
+                        tamanhoPorExameMB: tamanhoMB,
+                        tamanhoTotalMB: tamanhoTotalMB
+                    });
+                }
+            });
+            
+            // Converter para GB
+            const gbMes = totalMBMes / 1024;
+            
+            // Calcular crescimento anual
+            const crescimentoDecimal = crescimento / 100;
+            const gbAno = (gbMes * 12) * (1 + crescimentoDecimal);
+            
+            // Calcular custos mensais
+            const custoOracle = gbMes * oracle;
+            const custoWasabi = gbMes * wasabi;
+            const custoTotal = custoOracle + custoWasabi;
+            
+            // Calcular armazenamento total considerando período de retenção
+            const gbTotal = gbMes * retencao;
+            
+            // Exibir resultados
+            exibirResultados(totalExamesMes, gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal, detalhes);
+        }
+        
+        // Exibir resultados na interface
+        function exibirResultados(totalExamesMes, gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal, detalhes) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const costComparison = document.getElementById('costComparison');
+            const detailsSection = document.getElementById('detailsSection');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Atualizar texto introdutório
+            resultsSection.querySelector('p').textContent = `Resultados baseados nas informações fornecidas (${detalhes.length} modalidades ativas)`;
+            
+            // Resultados principais
+            resultsContainer.innerHTML = `
+                <div class="result-box">
+                    <div class="result-label">Exames por Mês</div>
+                    <div class="result-value">${totalExamesMes.toLocaleString('pt-BR')}</div>
+                    <div class="result-unit">exames</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-label">Armazenamento Mensal</div>
+                    <div class="result-value">${gbMes.toFixed(2)}</div>
+                    <div class="result-unit">GB/mês</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-label">Armazenamento Anual</div>
+                    <div class="result-value">${gbAno.toFixed(2)}</div>
+                    <div class="result-unit">GB/ano</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-label">Armazenamento Total</div>
+                    <div class="result-value">${gbTotal.toFixed(2)}</div>
+                    <div class="result-unit">GB (${document.getElementById('retencao').value} meses)</div>
+                </div>
+            `;
+            
+            // Comparação de custos
+            costComparison.innerHTML = `
+                <div class="cost-box">
+                    <div class="cost-title"><i class="fas fa-database"></i> Oracle Storage</div>
+                    <div class="cost-amount">R$ ${custoOracle.toFixed(2)}</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">por mês</div>
+                </div>
+                <div class="cost-box">
+                    <div class="cost-title"><i class="fas fa-hdd"></i> Wasabi Backup</div>
+                    <div class="cost-amount">R$ ${custoWasabi.toFixed(2)}</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">por mês</div>
+                </div>
+                <div class="cost-box" style="background: rgba(255, 255, 255, 0.2);">
+                    <div class="cost-title"><i class="fas fa-file-invoice-dollar"></i> Custo Total</div>
+                    <div class="cost-amount" style="color: #4dffb8;">R$ ${custoTotal.toFixed(2)}</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">por mês</div>
+                </div>
+            `;
+            
+            // Detalhes por modalidade
+            if (detalhes.length > 0) {
+                let detailsHTML = `
+                    <h3 class="details-title"><i class="fas fa-list-alt"></i> Detalhamento por Modalidade</h3>
+                    <table class="details-table">
+                        <thead>
+                            <tr>
+                                <th>Modalidade</th>
+                                <th style="text-align: right;">Exames/Mês</th>
+                                <th style="text-align: right;">Tamanho/Exame</th>
+                                <th style="text-align: right;">Armazenamento/Mês</th>
+                                <th style="text-align: right;">% do Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                detalhes.forEach(detalhe => {
+                    const percentual = (detalhe.tamanhoTotalMB / (gbMes * 1024)) * 100;
+                    
+                    detailsHTML += `
+                        <tr>
+                            <td>${detalhe.nome}</td>
+                            <td style="text-align: right;">${detalhe.quantidade.toLocaleString('pt-BR')}</td>
+                            <td style="text-align: right;">${detalhe.tamanhoPorExameMB} MB</td>
+                            <td style="text-align: right;" class="highlight">${(detalhe.tamanhoTotalMB / 1024).toFixed(2)} GB</td>
+                            <td style="text-align: right;">${percentual.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                });
+                
+                detailsHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                detailsSection.innerHTML = detailsHTML;
+            } else {
+                detailsSection.innerHTML = `
+                    <h3 class="details-title"><i class="fas fa-list-alt"></i> Detalhamento por Modalidade</h3>
+                    <p>Nenhuma modalidade com quantidade informada. Preencha os campos de exames/mês para ver os detalhes.</p>
+                `;
+            }
+            
+            // Rolagem suave para os resultados
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // Limpar todos os campos
+        function limparCampos() {
+            // Limpar campos de custo
+            document.getElementById('oracle').value = '0.12';
+            document.getElementById('wasabi').value = '0.04';
+            document.getElementById('crescimento').value = '20';
+            document.getElementById('retencao').value = '60';
+            
+            // Limpar campos de modalidades
+            modalidades.forEach(modalidade => {
+                const input = document.getElementById(modalidade.id);
+                input.value = '';
+            });
+            
+            // Limpar resultados
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.querySelector('p').textContent = 'Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.';
+            
+            document.getElementById('resultsContainer').innerHTML = '';
+            document.getElementById('costComparison').innerHTML = '';
+            document.getElementById('detailsSection').innerHTML = '';
+        }
+        
+        // Permitir calcular com a tecla Enter
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                calcular();
+            }
+        });
+        
+        // Inicializar a aplicação quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarModalidades();
+        });
+    </script>
 </body>
 </html>
