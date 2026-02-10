@@ -925,6 +925,36 @@
                             Para ajustar esses valores, acesse a aba "Configurar Tamanhos".
                         </div>
                     </div>
+                    
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Custo Oracle Storage</span>
+                            <span>R$/GB/mês</span>
+                        </div>
+                        <div class="currency">
+                            <input type="number" id="oracle" class="input-field" step="0.01" min="0" value="0.12" placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Custo Wasabi Backup</span>
+                            <span>R$/GB/mês</span>
+                        </div>
+                        <div class="currency">
+                            <input type="number" id="wasabi" class="input-field" step="0.01" min="0" value="0.04" placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Crescimento Anual</span>
+                            <span>% por ano</span>
+                        </div>
+                        <div class="percentage">
+                            <input type="number" id="crescimento" class="input-field" step="0.1" min="0" value="20" placeholder="0">
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="card results-card" id="resultsSection">
@@ -957,7 +987,6 @@
         
         <!-- ABA 2: CONFIGURAR TAMANHOS -->
         <div class="tab-content" id="config-tab">
-            <!-- (conteúdo igual ao anterior) -->
             <div class="dashboard">
                 <div class="card">
                     <div class="tab-header">
@@ -1002,33 +1031,33 @@
                         <h3 style="margin-bottom: 15px; color: var(--primary);">Tamanhos Típicos por Modalidade</h3>
                         
                         <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                            <strong>Exames Simples (10-50 MB):</strong>
+                            <strong>Exames Simples (1-50 MB):</strong>
                             <ul style="margin-top: 8px; margin-left: 20px;">
-                                <li>Raio-X Digital: 10-30 MB</li>
-                                <li>Densitometria Óssea: 15-25 MB</li>
-                                <li>ECG: 2-5 MB</li>
-                                <li>Odonto Panorâmico: 20-40 MB</li>
+                                <li>Raio-X Digital (CR): 10 MB</li>
+                                <li>Densitometria Óssea (DO): 1 MB</li>
+                                <li>ECG: 1 MB</li>
+                                <li>Ultrassom (US): 8 MB</li>
+                                <li>Endoscopia (ES): 7 MB</li>
+                                <li>Pet/CT: 15 MB</li>
                             </ul>
                         </div>
                         
                         <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                            <strong>Exames Moderados (50-300 MB):</strong>
+                            <strong>Exames Moderados (20-180 MB):</strong>
                             <ul style="margin-top: 8px; margin-left: 20px;">
-                                <li>Ultrassom: 40-100 MB</li>
-                                <li>Mamografia: 100-200 MB</li>
-                                <li>Tomografia (CT) simples: 150-300 MB</li>
-                                <li>CBCT Odontológico: 200-400 MB</li>
+                                <li>Mamografia (MG): 20 MB</li>
+                                <li>Tomografia (CT): 180 MB</li>
+                                <li>X-Angio (XA): 80 MB</li>
+                                <li>Oftalmologia: 2 MB</li>
                             </ul>
                         </div>
                         
                         <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                            <strong>Exames Complexos (300+ MB):</strong>
+                            <strong>Exames Complexos (100-1000+ MB):</strong>
                             <ul style="margin-top: 8px; margin-left: 20px;">
-                                <li>Ressonância Magnética: 300-1000 MB</li>
-                                <li>Tomografia com contraste: 400-800 MB</li>
-                                <li>Tomossíntese Mamária: 500-1000 MB</li>
-                                <li>Endoscopia com vídeo: 800-1500 MB</li>
-                                <li>Hemodinâmica/Angio: 1500-3000 MB</li>
+                                <li>Ressonância Magnética (MR): 100 MB</li>
+                                <li>Tomografia (CT): 180 MB</li>
+                                <li>Tomografia com muitas imagens: 1000+ MB</li>
                             </ul>
                         </div>
                     </div>
@@ -1038,7 +1067,6 @@
         
         <!-- ABA 3: CONFIGURAR CUSTOS -->
         <div class="tab-content" id="custos-tab">
-            <!-- (conteúdo igual ao anterior) -->
             <div class="dashboard">
                 <div class="card">
                     <div class="tab-header">
@@ -1154,23 +1182,19 @@
     </div>
 
     <script>
-        // Dados iniciais das modalidades médicas
+        // Dados das modalidades médicas baseados na tabela fornecida
         const modalidadesPadrao = [
-            { id: 'rx', nome: 'Raio-X', tamanhoMB: 20, icone: 'fas fa-bone' },
-            { id: 'mg', nome: 'Mamografia', tamanhoMB: 150, icone: 'fas fa-female' },
-            { id: 'tomo', nome: 'Tomossíntese', tamanhoMB: 800, icone: 'fas fa-layer-group' },
-            { id: 'dens', nome: 'Densitometria', tamanhoMB: 15, icone: 'fas fa-weight' },
-            { id: 'us', nome: 'Ultrassom Geral', tamanhoMB: 50, icone: 'fas fa-wave-square' },
-            { id: 'doppler', nome: 'Doppler', tamanhoMB: 80, icone: 'fas fa-tachometer-alt' },
-            { id: 'eco', nome: 'Ecocardiograma', tamanhoMB: 400, icone: 'fas fa-heartbeat' },
-            { id: 'ct', nome: 'Tomografia (CT)', tamanhoMB: 400, icone: 'fas fa-cogs' },
-            { id: 'rm', nome: 'Ressonância (RM)', tamanhoMB: 800, icone: 'fas fa-magnet' },
-            { id: 'pano', nome: 'Odonto Panorâmico', tamanhoMB: 25, icone: 'fas fa-tooth' },
-            { id: 'cbct', nome: 'CBCT 3D', tamanhoMB: 350, icone: 'fas fa-cube' },
-            { id: 'endo', nome: 'Endoscopia / Vídeo', tamanhoMB: 1200, icone: 'fas fa-video' },
-            { id: 'hemo', nome: 'Hemodinâmica', tamanhoMB: 2000, icone: 'fas fa-heart' },
-            { id: 'ecg', nome: 'ECG / Documentos', tamanhoMB: 3, icone: 'fas fa-file-medical' },
-            { id: 'foto', nome: 'Fotografia Clínica', tamanhoMB: 10, icone: 'fas fa-camera' }
+            { id: 'cr', nome: 'Raio-X (CR)', tamanhoMB: 10, icone: 'fas fa-bone' },
+            { id: 'do', nome: 'Densitometria Óssea (DO)', tamanhoMB: 1, icone: 'fas fa-weight' },
+            { id: 'mg', nome: 'Mamografia (MG)', tamanhoMB: 20, icone: 'fas fa-female' },
+            { id: 'us', nome: 'Ultrassom (US)', tamanhoMB: 8, icone: 'fas fa-wave-square' },
+            { id: 'es', nome: 'Endoscopia (ES)', tamanhoMB: 7, icone: 'fas fa-video' },
+            { id: 'ct', nome: 'Tomografia (CT)', tamanhoMB: 180, icone: 'fas fa-cogs' },
+            { id: 'mr', nome: 'Ressonância Magnética (MR)', tamanhoMB: 100, icone: 'fas fa-magnet' },
+            { id: 'petct', nome: 'Pet/CT', tamanhoMB: 15, icone: 'fas fa-radiation' },
+            { id: 'xa', nome: 'X-Angio (XA)', tamanhoMB: 80, icone: 'fas fa-heart' },
+            { id: 'ecg', nome: 'ECG', tamanhoMB: 1, icone: 'fas fa-heartbeat' },
+            { id: 'oftalmo', nome: 'Oftalmologia', tamanhoMB: 2, icone: 'fas fa-eye' }
         ];
         
         // Variável global para armazenar as modalidades (pode ser modificada)
@@ -1185,8 +1209,11 @@
                 const item = document.createElement('div');
                 item.className = 'modalidade-item';
                 
-                // Valor de exemplo aleatório entre 50 e 500
-                const exemplo = Math.floor(Math.random() * 450) + 50;
+                // Valor de exemplo baseado na modalidade
+                const exemplo = modalidade.id === 'ct' ? 50 : 
+                               modalidade.id === 'mr' ? 30 : 
+                               modalidade.id === 'cr' ? 200 : 
+                               modalidade.id === 'us' ? 150 : 80;
                 
                 item.innerHTML = `
                     <div class="modalidade-header">
@@ -1775,15 +1802,6 @@
             inicializarModalidades();
             inicializarConfigTamanhos();
             inicializarEventos();
-            
-            // Configurar valores iniciais para custos (se os elementos existirem)
-            const oracleInput = document.getElementById('oracle');
-            const wasabiInput = document.getElementById('wasabi');
-            const crescimentoInput = document.getElementById('crescimento');
-            
-            if (oracleInput) oracleInput.value = '0.12';
-            if (wasabiInput) wasabiInput.value = '0.04';
-            if (crescimentoInput) crescimentoInput.value = '20';
         });
     </script>
 </body>
