@@ -438,6 +438,7 @@
             text-align: center;
             backdrop-filter: blur(10px);
             transition: var(--transition);
+            position: relative;
         }
         
         .result-box:hover {
@@ -461,6 +462,30 @@
         .result-unit {
             font-size: 1rem;
             opacity: 0.8;
+        }
+        
+        .result-conversion {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .storage-comparison {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .storage-comparison span {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
         }
         
         .cost-comparison {
@@ -493,6 +518,80 @@
         .cost-amount {
             font-size: 1.8rem;
             font-weight: 700;
+        }
+        
+        .cost-details {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .cost-detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .cost-detail-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: var(--accent-light);
+        }
+        
+        .expansion-costs {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 4px solid var(--accent-light);
+        }
+        
+        .expansion-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-light);
+        }
+        
+        .expansion-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .expansion-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .expansion-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .expansion-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .expansion-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .expansion-note {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-style: italic;
         }
         
         .details-section {
@@ -711,6 +810,37 @@
         #resultsIntro {
             margin-bottom: 20px;
         }
+        
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+        
+        .info-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+        
+        .info-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -814,6 +944,10 @@
                         <!-- Comparação de custos será preenchida via JavaScript -->
                     </div>
                     
+                    <div class="expansion-costs" id="expansionCosts">
+                        <!-- Custos de expansão serão preenchidos via JavaScript -->
+                    </div>
+                    
                     <div class="details-section" id="detailsSection">
                         <!-- Detalhes por modalidade serão preenchidos via JavaScript -->
                     </div>
@@ -823,6 +957,7 @@
         
         <!-- ABA 2: CONFIGURAR TAMANHOS -->
         <div class="tab-content" id="config-tab">
+            <!-- (conteúdo igual ao anterior) -->
             <div class="dashboard">
                 <div class="card">
                     <div class="tab-header">
@@ -896,15 +1031,6 @@
                                 <li>Hemodinâmica/Angio: 1500-3000 MB</li>
                             </ul>
                         </div>
-                        
-                        <div class="config-info" style="margin-top: 20px;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div>
-                                <strong>Nota:</strong> Esses valores são estimativas. 
-                                O tamanho real pode variar significativamente dependendo da resolução, 
-                                número de cortes, uso de contraste e formato de arquivo (DICOM, JPEG, MPEG, etc.).
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -912,6 +1038,7 @@
         
         <!-- ABA 3: CONFIGURAR CUSTOS -->
         <div class="tab-content" id="custos-tab">
+            <!-- (conteúdo igual ao anterior) -->
             <div class="dashboard">
                 <div class="card">
                     <div class="tab-header">
@@ -1010,16 +1137,6 @@
                                 <li><strong>Wasabi/Backblaze:</strong> R$ 0.03-0.06/GB (Econômico)</li>
                             </ul>
                         </div>
-                        
-                        <div style="background: var(--light); padding: 15px; border-radius: 8px;">
-                            <strong>Estratégias de Otimização:</strong>
-                            <ul style="margin-top: 8px; margin-left: 20px;">
-                                <li>Implementar tiered storage (misturar hot/cold)</li>
-                                <li>Comprimir arquivos DICOM (lossless)</li>
-                                <li>Definir políticas de retenção claras</li>
-                                <li>Considerar armazenamento híbrido (cloud + on-premise)</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1031,7 +1148,7 @@
         </div>
         
         <footer>
-            <p>Simulador Profissional PACS Cloud &copy; 2026 | Desenvolvido para clínicas e hospitais</p>
+            <p>Simulador Profissional PACS Cloud &copy; 2023 | Desenvolvido para clínicas e hospitais</p>
             <p>Os valores de tamanho de arquivo são baseados em médias da indústria e podem variar conforme o equipamento e configurações</p>
         </footer>
     </div>
@@ -1231,10 +1348,8 @@
             }
         }
         
-        // Função principal de cálculo - SIMPLIFICADA E CORRIGIDA
+        // Função principal de cálculo
         function calcular() {
-            console.log("Função calcular chamada"); // Debug
-            
             // Mostrar loading
             const loadingElement = document.getElementById('loadingResults');
             if (loadingElement) loadingElement.style.display = 'block';
@@ -1242,8 +1357,6 @@
             // Pequeno delay para mostrar o loading
             setTimeout(() => {
                 try {
-                    console.log("Iniciando cálculo..."); // Debug
-                    
                     // Obter valores de custo
                     const oracleInput = document.getElementById('oracle');
                     const wasabiInput = document.getElementById('wasabi');
@@ -1254,8 +1367,6 @@
                     const wasabi = wasabiInput ? parseFloat(wasabiInput.value) || 0 : 0.04;
                     const crescimento = crescimentoInput ? parseFloat(crescimentoInput.value) || 0 : 20;
                     const retencao = retencaoSelect ? parseInt(retencaoSelect.value) || 60 : 60;
-                    
-                    console.log("Parâmetros:", { oracle, wasabi, crescimento, retencao }); // Debug
                     
                     // Calcular total de armazenamento
                     let totalExamesMes = 0;
@@ -1270,8 +1381,6 @@
                             const quantidade = parseFloat(input.value) || 0;
                             const tamanhoMB = modalidade.tamanhoMB;
                             
-                            console.log(`${modalidade.nome}: ${quantidade} exames x ${tamanhoMB} MB`); // Debug
-                            
                             if (quantidade > 0) {
                                 const tamanhoTotalMB = quantidade * tamanhoMB;
                                 totalExamesMes += quantidade;
@@ -1284,12 +1393,8 @@
                                     tamanhoTotalMB: tamanhoTotalMB
                                 });
                             }
-                        } else {
-                            console.log(`Input não encontrado: ${inputId}`); // Debug
                         }
                     });
-                    
-                    console.log("Totais:", { totalExamesMes, totalMBMes }); // Debug
                     
                     if (totalExamesMes === 0) {
                         mostrarMensagem('Informe pelo menos uma quantidade de exames para calcular.', 'warning');
@@ -1297,25 +1402,37 @@
                         return;
                     }
                     
-                    // Converter para GB
+                    // Converter para GB e TB
                     const gbMes = totalMBMes / 1024;
+                    const tbMes = gbMes / 1024;
                     
                     // Calcular crescimento anual
                     const crescimentoDecimal = crescimento / 100;
                     const gbAno = (gbMes * 12) * (1 + crescimentoDecimal);
+                    const tbAno = gbAno / 1024;
+                    
+                    // Calcular armazenamento total considerando período de retenção
+                    const gbTotal = gbMes * retencao;
+                    const tbTotal = gbTotal / 1024;
                     
                     // Calcular custos mensais
                     const custoOracle = gbMes * oracle;
                     const custoWasabi = gbMes * wasabi;
                     const custoTotal = custoOracle + custoWasabi;
                     
-                    // Calcular armazenamento total considerando período de retenção
-                    const gbTotal = gbMes * retencao;
+                    // Calcular custos adicionais por TB
+                    const custoOraclePorTB = 1024 * oracle; // 1 TB = 1024 GB
+                    const custoWasabiPorTB = 1024 * wasabi;
                     
-                    console.log("Resultados:", { gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal }); // Debug
+                    // Calcular custos anuais
+                    const custoOracleAnual = custoOracle * 12;
+                    const custoWasabiAnual = custoWasabi * 12;
+                    const custoTotalAnual = custoTotal * 12;
                     
                     // Exibir resultados
-                    exibirResultados(totalExamesMes, gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal, detalhes);
+                    exibirResultados(totalExamesMes, gbMes, tbMes, gbAno, tbAno, gbTotal, tbTotal, 
+                                   custoOracle, custoWasabi, custoTotal, custoOraclePorTB, custoWasabiPorTB,
+                                   custoOracleAnual, custoWasabiAnual, custoTotalAnual, detalhes);
                     
                     // Esconder loading
                     if (loadingElement) loadingElement.style.display = 'none';
@@ -1329,9 +1446,12 @@
         }
         
         // Exibir resultados na interface
-        function exibirResultados(totalExamesMes, gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal, detalhes) {
+        function exibirResultados(totalExamesMes, gbMes, tbMes, gbAno, tbAno, gbTotal, tbTotal,
+                                custoOracle, custoWasabi, custoTotal, custoOraclePorTB, custoWasabiPorTB,
+                                custoOracleAnual, custoWasabiAnual, custoTotalAnual, detalhes) {
             const resultsContainer = document.getElementById('resultsContainer');
             const costComparison = document.getElementById('costComparison');
+            const expansionCosts = document.getElementById('expansionCosts');
             const detailsSection = document.getElementById('detailsSection');
             const resultsIntro = document.getElementById('resultsIntro');
             
@@ -1343,7 +1463,7 @@
             // Atualizar texto introdutório
             resultsIntro.textContent = `Resultados baseados nas informações fornecidas (${detalhes.length} modalidades ativas)`;
             
-            // Resultados principais
+            // Resultados principais com conversões GB/TB
             resultsContainer.innerHTML = `
                 <div class="result-box">
                     <div class="result-label">Exames por Mês</div>
@@ -1352,37 +1472,111 @@
                 </div>
                 <div class="result-box">
                     <div class="result-label">Armazenamento Mensal</div>
-                    <div class="result-value">${gbMes.toFixed(2)}</div>
-                    <div class="result-unit">GB/mês</div>
+                    <div class="result-value">${tbMes.toFixed(3)}</div>
+                    <div class="result-unit">TB/mês</div>
+                    <div class="result-conversion">(equivalente a ${gbMes.toFixed(2)} GB)</div>
                 </div>
                 <div class="result-box">
                     <div class="result-label">Armazenamento Anual</div>
-                    <div class="result-value">${gbAno.toFixed(2)}</div>
-                    <div class="result-unit">GB/ano</div>
+                    <div class="result-value">${tbAno.toFixed(3)}</div>
+                    <div class="result-unit">TB/ano</div>
+                    <div class="result-conversion">(equivalente a ${gbAno.toFixed(2)} GB)</div>
                 </div>
                 <div class="result-box">
                     <div class="result-label">Armazenamento Total</div>
-                    <div class="result-value">${gbTotal.toFixed(2)}</div>
-                    <div class="result-unit">GB (${document.getElementById('retencao').value} meses)</div>
+                    <div class="result-value">${tbTotal.toFixed(3)}</div>
+                    <div class="result-unit">TB total</div>
+                    <div class="result-conversion">(${document.getElementById('retencao').value} meses)</div>
                 </div>
             `;
             
-            // Comparação de custos
+            // Comparação de custos com detalhes
             costComparison.innerHTML = `
                 <div class="cost-box">
                     <div class="cost-title"><i class="fas fa-database"></i> Oracle Storage</div>
                     <div class="cost-amount">R$ ${custoOracle.toFixed(2)}</div>
-                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">por mês</div>
+                    <div class="cost-details">
+                        <div class="cost-detail-item">
+                            <span>Mensal:</span>
+                            <span>R$ ${custoOracle.toFixed(2)}</span>
+                        </div>
+                        <div class="cost-detail-item">
+                            <span>Anual:</span>
+                            <span>R$ ${custoOracleAnual.toFixed(2)}</span>
+                        </div>
+                        <div class="cost-detail-item">
+                            <span>Por TB adicional:</span>
+                            <span>R$ ${custoOraclePorTB.toFixed(2)}/mês</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="cost-box">
                     <div class="cost-title"><i class="fas fa-hdd"></i> Wasabi Backup</div>
                     <div class="cost-amount">R$ ${custoWasabi.toFixed(2)}</div>
-                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">por mês</div>
+                    <div class="cost-details">
+                        <div class="cost-detail-item">
+                            <span>Mensal:</span>
+                            <span>R$ ${custoWasabi.toFixed(2)}</span>
+                        </div>
+                        <div class="cost-detail-item">
+                            <span>Anual:</span>
+                            <span>R$ ${custoWasabiAnual.toFixed(2)}</span>
+                        </div>
+                        <div class="cost-detail-item">
+                            <span>Por TB adicional:</span>
+                            <span>R$ ${custoWasabiPorTB.toFixed(2)}/mês</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="cost-box" style="background: rgba(255, 255, 255, 0.2);">
+                <div class="cost-box" style="background: rgba(255, 255, 255, 0.15);">
                     <div class="cost-title"><i class="fas fa-file-invoice-dollar"></i> Custo Total</div>
                     <div class="cost-amount" style="color: #4dffb8;">R$ ${custoTotal.toFixed(2)}</div>
-                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">por mês</div>
+                    <div class="cost-details">
+                        <div class="cost-detail-item">
+                            <span>Mensal:</span>
+                            <span style="color: #4dffb8;">R$ ${custoTotal.toFixed(2)}</span>
+                        </div>
+                        <div class="cost-detail-item">
+                            <span>Anual:</span>
+                            <span style="color: #4dffb8;">R$ ${custoTotalAnual.toFixed(2)}</span>
+                        </div>
+                        <div class="cost-detail-item">
+                            <span>Por TB adicional:</span>
+                            <span style="color: #4dffb8;">R$ ${(custoOraclePorTB + custoWasabiPorTB).toFixed(2)}/mês</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Custos de expansão
+            expansionCosts.innerHTML = `
+                <div class="expansion-title">
+                    <i class="fas fa-expand-alt"></i> Custos de Expansão - Informações Adicionais
+                </div>
+                <div class="expansion-grid">
+                    <div class="expansion-item">
+                        <div class="expansion-label">Custo por TB adicional (Oracle)</div>
+                        <div class="expansion-value">R$ ${custoOraclePorTB.toFixed(2)}/mês</div>
+                        <div class="expansion-note">Para cada TB extra de armazenamento Oracle</div>
+                    </div>
+                    <div class="expansion-item">
+                        <div class="expansion-label">Custo por TB adicional (Wasabi)</div>
+                        <div class="expansion-value">R$ ${custoWasabiPorTB.toFixed(2)}/mês</div>
+                        <div class="expansion-note">Para cada TB extra de armazenamento Wasabi</div>
+                    </div>
+                    <div class="expansion-item">
+                        <div class="expansion-label">Projeção de custo anual (Oracle)</div>
+                        <div class="expansion-value">R$ ${custoOracleAnual.toFixed(2)}</div>
+                        <div class="expansion-note">Custo estimado para 12 meses</div>
+                    </div>
+                    <div class="expansion-item">
+                        <div class="expansion-label">Projeção de custo anual (Wasabi)</div>
+                        <div class="expansion-value">R$ ${custoWasabiAnual.toFixed(2)}</div>
+                        <div class="expansion-note">Custo estimado para 12 meses</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8; text-align: center;">
+                    <i class="fas fa-info-circle"></i> Estes valores ajudam no planejamento de expansão futura da capacidade de armazenamento.
                 </div>
             `;
             
@@ -1454,10 +1648,12 @@
             
             const resultsContainer = document.getElementById('resultsContainer');
             const costComparison = document.getElementById('costComparison');
+            const expansionCosts = document.getElementById('expansionCosts');
             const detailsSection = document.getElementById('detailsSection');
             
             if (resultsContainer) resultsContainer.innerHTML = '';
             if (costComparison) costComparison.innerHTML = '';
+            if (expansionCosts) expansionCosts.innerHTML = '';
             if (detailsSection) detailsSection.innerHTML = '';
             
             mostrarMensagem('Campos limpos com sucesso!', 'info');
@@ -1488,15 +1684,10 @@
         
         // Inicializar eventos
         function inicializarEventos() {
-            console.log("Inicializando eventos..."); // Debug
-            
             // Botões da aba quantidade
             const calcularBtn = document.getElementById('calcularBtn');
             if (calcularBtn) {
                 calcularBtn.addEventListener('click', calcular);
-                console.log("Evento calcular adicionado"); // Debug
-            } else {
-                console.error("Botão calcular não encontrado!");
             }
             
             const limparBtn = document.getElementById('limparBtn');
@@ -1580,8 +1771,6 @@
         
         // Inicializar a aplicação quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM carregado, inicializando..."); // Debug
-            
             // Inicializar os elementos
             inicializarModalidades();
             inicializarConfigTamanhos();
@@ -1595,8 +1784,6 @@
             if (oracleInput) oracleInput.value = '0.12';
             if (wasabiInput) wasabiInput.value = '0.04';
             if (crescimentoInput) crescimentoInput.value = '20';
-            
-            console.log("Inicialização completa!"); // Debug
         });
     </script>
 </body>
