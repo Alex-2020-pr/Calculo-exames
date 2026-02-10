@@ -646,6 +646,71 @@
         .size-reset-btn:hover {
             background: #e0a800;
         }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .mensagem-flutuante {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .mensagem-flutuante.success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .mensagem-flutuante.danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .mensagem-flutuante.info {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .mensagem-flutuante.warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        #resultsIntro {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -689,10 +754,10 @@
                     </div>
                     
                     <div class="buttons">
-                        <button class="btn btn-primary" onclick="calcular()">
+                        <button class="btn btn-primary" id="calcularBtn">
                             <i class="fas fa-calculator"></i> Calcular Armazenamento
                         </button>
-                        <button class="btn btn-secondary" onclick="limparCamposQuantidade()">
+                        <button class="btn btn-secondary" id="limparBtn">
                             <i class="fas fa-redo"></i> Limpar Campos
                         </button>
                     </div>
@@ -702,7 +767,7 @@
                     <div class="tab-header">
                         <h2 class="card-title"><i class="fas fa-cogs"></i> Configurações Gerais</h2>
                         <div class="tab-actions">
-                            <button class="btn-small btn-secondary" onclick="mudarAba('config')">
+                            <button class="btn-small btn-secondary" id="editarTamanhosBtn">
                                 <i class="fas fa-edit"></i> Editar Tamanhos
                             </button>
                         </div>
@@ -733,8 +798,13 @@
                 </div>
                 
                 <div class="card results-card" id="resultsSection">
+                    <div class="loading" id="loadingResults">
+                        <div class="loading-spinner"></div>
+                        <p>Calculando resultados...</p>
+                    </div>
+                    
                     <h2 class="card-title"><i class="fas fa-chart-line"></i> Resultados da Simulação</h2>
-                    <p>Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.</p>
+                    <p id="resultsIntro">Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.</p>
                     
                     <div class="results-grid" id="resultsContainer">
                         <!-- Resultados serão preenchidos via JavaScript -->
@@ -758,10 +828,10 @@
                     <div class="tab-header">
                         <h2 class="card-title"><i class="fas fa-sliders-h"></i> Configurar Tamanhos dos Exames</h2>
                         <div class="tab-actions">
-                            <button class="btn-small btn-success" onclick="salvarTamanhos()">
+                            <button class="btn-small btn-success" id="salvarTamanhosBtn">
                                 <i class="fas fa-save"></i> Salvar Tamanhos
                             </button>
-                            <button class="btn-small btn-secondary" onclick="resetarTamanhos()">
+                            <button class="btn-small btn-secondary" id="resetarTamanhosBtn">
                                 <i class="fas fa-undo"></i> Restaurar Padrão
                             </button>
                         </div>
@@ -781,10 +851,10 @@
                     </div>
                     
                     <div class="buttons">
-                        <button class="btn btn-success" onclick="salvarTamanhos()">
+                        <button class="btn btn-success" id="salvarVoltarBtn">
                             <i class="fas fa-save"></i> Salvar e Voltar para Cálculos
                         </button>
-                        <button class="btn btn-secondary" onclick="mudarAba('quantidade')">
+                        <button class="btn btn-secondary" id="voltarSemSalvarBtn">
                             <i class="fas fa-arrow-left"></i> Voltar sem Salvar
                         </button>
                     </div>
@@ -847,10 +917,10 @@
                     <div class="tab-header">
                         <h2 class="card-title"><i class="fas fa-dollar-sign"></i> Configurar Custos de Armazenamento</h2>
                         <div class="tab-actions">
-                            <button class="btn-small btn-success" onclick="salvarCustos()">
+                            <button class="btn-small btn-success" id="salvarCustosBtn">
                                 <i class="fas fa-save"></i> Salvar Custos
                             </button>
-                            <button class="btn-small btn-secondary" onclick="resetarCustos()">
+                            <button class="btn-small btn-secondary" id="resetarCustosBtn">
                                 <i class="fas fa-undo"></i> Restaurar Padrão
                             </button>
                         </div>
@@ -907,10 +977,10 @@
                     </div>
                     
                     <div class="buttons">
-                        <button class="btn btn-success" onclick="salvarCustos()">
+                        <button class="btn btn-success" id="salvarCustosVoltarBtn">
                             <i class="fas fa-save"></i> Salvar e Voltar para Cálculos
                         </button>
-                        <button class="btn btn-secondary" onclick="mudarAba('quantidade')">
+                        <button class="btn btn-secondary" id="voltarCustosBtn">
                             <i class="fas fa-arrow-left"></i> Voltar sem Salvar
                         </button>
                     </div>
@@ -1006,15 +1076,15 @@
                         <div class="modalidade-name">
                             <i class="${modalidade.icone}"></i> ${modalidade.nome}
                         </div>
-                        <div class="modalidade-size">${modalidade.tamanhoMB} MB/exame</div>
+                        <div class="modalidade-size" id="size-${modalidade.id}">${modalidade.tamanhoMB} MB/exame</div>
                     </div>
                     <div class="modalidade-input">
                         <input type="number" 
-                               id="${modalidade.id}" 
+                               id="input-${modalidade.id}" 
+                               class="modalidade-input-field"
                                min="0" 
                                step="1" 
-                               placeholder="${exemplo}"
-                               data-tamanho="${modalidade.tamanhoMB}">
+                               placeholder="${exemplo}">
                         <span>exames/mês</span>
                     </div>
                 `;
@@ -1037,13 +1107,14 @@
                         <div class="size-config-name">
                             <i class="${modalidade.icone}"></i> ${modalidade.nome}
                         </div>
-                        <button class="size-reset-btn" onclick="resetarTamanhoIndividual('${modalidade.id}')">
+                        <button class="size-reset-btn" data-id="${modalidade.id}">
                             <i class="fas fa-undo"></i> Padrão
                         </button>
                     </div>
                     <div class="size-config-input">
                         <input type="number" 
                                id="config-${modalidade.id}" 
+                               class="size-config-input-field"
                                min="0.1" 
                                step="0.1" 
                                value="${modalidade.tamanhoMB}">
@@ -1079,12 +1150,9 @@
         // Atualizar os tamanhos exibidos na aba de quantidade
         function atualizarTamanhosExibidos() {
             modalidades.forEach(modalidade => {
-                const sizeElement = document.querySelector(`#${modalidade.id}`).closest('.modalidade-item').querySelector('.modalidade-size');
-                const inputElement = document.querySelector(`#${modalidade.id}`);
-                
-                if (sizeElement && inputElement) {
+                const sizeElement = document.getElementById(`size-${modalidade.id}`);
+                if (sizeElement) {
                     sizeElement.textContent = `${modalidade.tamanhoMB} MB/exame`;
-                    inputElement.dataset.tamanho = modalidade.tamanhoMB;
                 }
             });
         }
@@ -1108,7 +1176,7 @@
             mudarAba('quantidade');
             
             // Mostrar mensagem de sucesso
-            alert('Tamanhos dos exames atualizados com sucesso!');
+            mostrarMensagem('Tamanhos dos exames atualizados com sucesso!', 'success');
         }
         
         // Resetar tamanhos para valores padrão
@@ -1116,7 +1184,7 @@
             if (confirm('Deseja restaurar todos os tamanhos para os valores padrão da indústria?')) {
                 modalidades = JSON.parse(JSON.stringify(modalidadesPadrao));
                 inicializarConfigTamanhos();
-                alert('Tamanhos restaurados para valores padrão.');
+                mostrarMensagem('Tamanhos restaurados para valores padrão.', 'success');
             }
         }
         
@@ -1127,6 +1195,11 @@
                 const input = document.getElementById(`config-${modalidadeId}`);
                 if (input) {
                     input.value = modalidadePadrao.tamanhoMB;
+                    const modalidadeAtual = modalidades.find(m => m.id === modalidadeId);
+                    if (modalidadeAtual) {
+                        modalidadeAtual.tamanhoMB = modalidadePadrao.tamanhoMB;
+                    }
+                    mostrarMensagem(`Tamanho de ${modalidadePadrao.nome} restaurado para ${modalidadePadrao.tamanhoMB} MB`, 'info');
                 }
             }
         }
@@ -1145,7 +1218,7 @@
             mudarAba('quantidade');
             
             // Mostrar mensagem de sucesso
-            alert('Configurações de custo atualizadas com sucesso!');
+            mostrarMensagem('Configurações de custo atualizadas com sucesso!', 'success');
         }
         
         // Resetar custos para valores padrão
@@ -1154,58 +1227,105 @@
                 document.getElementById('oracle-config').value = '0.12';
                 document.getElementById('wasabi-config').value = '0.04';
                 document.getElementById('crescimento-config').value = '20';
+                mostrarMensagem('Custos restaurados para valores padrão.', 'success');
             }
         }
         
-        // Função principal de cálculo
+        // Função principal de cálculo - SIMPLIFICADA E CORRIGIDA
         function calcular() {
-            // Obter valores de custo
-            const oracle = parseFloat(document.getElementById('oracle').value) || 0;
-            const wasabi = parseFloat(document.getElementById('wasabi').value) || 0;
-            const crescimento = parseFloat(document.getElementById('crescimento').value) || 0;
-            const retencao = parseInt(document.getElementById('retencao').value) || 60;
+            console.log("Função calcular chamada"); // Debug
             
-            // Calcular total de armazenamento
-            let totalExamesMes = 0;
-            let totalMBMes = 0;
-            const detalhes = [];
+            // Mostrar loading
+            const loadingElement = document.getElementById('loadingResults');
+            if (loadingElement) loadingElement.style.display = 'block';
             
-            modalidades.forEach(modalidade => {
-                const input = document.getElementById(modalidade.id);
-                const quantidade = parseFloat(input.value) || 0;
-                const tamanhoMB = modalidade.tamanhoMB;
-                
-                if (quantidade > 0) {
-                    const tamanhoTotalMB = quantidade * tamanhoMB;
-                    totalExamesMes += quantidade;
-                    totalMBMes += tamanhoTotalMB;
+            // Pequeno delay para mostrar o loading
+            setTimeout(() => {
+                try {
+                    console.log("Iniciando cálculo..."); // Debug
                     
-                    detalhes.push({
-                        nome: modalidade.nome,
-                        quantidade: quantidade,
-                        tamanhoPorExameMB: tamanhoMB,
-                        tamanhoTotalMB: tamanhoTotalMB
+                    // Obter valores de custo
+                    const oracleInput = document.getElementById('oracle');
+                    const wasabiInput = document.getElementById('wasabi');
+                    const crescimentoInput = document.getElementById('crescimento');
+                    const retencaoSelect = document.getElementById('retencao');
+                    
+                    const oracle = oracleInput ? parseFloat(oracleInput.value) || 0 : 0.12;
+                    const wasabi = wasabiInput ? parseFloat(wasabiInput.value) || 0 : 0.04;
+                    const crescimento = crescimentoInput ? parseFloat(crescimentoInput.value) || 0 : 20;
+                    const retencao = retencaoSelect ? parseInt(retencaoSelect.value) || 60 : 60;
+                    
+                    console.log("Parâmetros:", { oracle, wasabi, crescimento, retencao }); // Debug
+                    
+                    // Calcular total de armazenamento
+                    let totalExamesMes = 0;
+                    let totalMBMes = 0;
+                    const detalhes = [];
+                    
+                    modalidades.forEach(modalidade => {
+                        const inputId = `input-${modalidade.id}`;
+                        const input = document.getElementById(inputId);
+                        
+                        if (input) {
+                            const quantidade = parseFloat(input.value) || 0;
+                            const tamanhoMB = modalidade.tamanhoMB;
+                            
+                            console.log(`${modalidade.nome}: ${quantidade} exames x ${tamanhoMB} MB`); // Debug
+                            
+                            if (quantidade > 0) {
+                                const tamanhoTotalMB = quantidade * tamanhoMB;
+                                totalExamesMes += quantidade;
+                                totalMBMes += tamanhoTotalMB;
+                                
+                                detalhes.push({
+                                    nome: modalidade.nome,
+                                    quantidade: quantidade,
+                                    tamanhoPorExameMB: tamanhoMB,
+                                    tamanhoTotalMB: tamanhoTotalMB
+                                });
+                            }
+                        } else {
+                            console.log(`Input não encontrado: ${inputId}`); // Debug
+                        }
                     });
+                    
+                    console.log("Totais:", { totalExamesMes, totalMBMes }); // Debug
+                    
+                    if (totalExamesMes === 0) {
+                        mostrarMensagem('Informe pelo menos uma quantidade de exames para calcular.', 'warning');
+                        if (loadingElement) loadingElement.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Converter para GB
+                    const gbMes = totalMBMes / 1024;
+                    
+                    // Calcular crescimento anual
+                    const crescimentoDecimal = crescimento / 100;
+                    const gbAno = (gbMes * 12) * (1 + crescimentoDecimal);
+                    
+                    // Calcular custos mensais
+                    const custoOracle = gbMes * oracle;
+                    const custoWasabi = gbMes * wasabi;
+                    const custoTotal = custoOracle + custoWasabi;
+                    
+                    // Calcular armazenamento total considerando período de retenção
+                    const gbTotal = gbMes * retencao;
+                    
+                    console.log("Resultados:", { gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal }); // Debug
+                    
+                    // Exibir resultados
+                    exibirResultados(totalExamesMes, gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal, detalhes);
+                    
+                    // Esconder loading
+                    if (loadingElement) loadingElement.style.display = 'none';
+                    
+                } catch (error) {
+                    console.error('Erro ao calcular:', error);
+                    mostrarMensagem('Erro ao calcular. Verifique os valores informados.', 'danger');
+                    if (loadingElement) loadingElement.style.display = 'none';
                 }
-            });
-            
-            // Converter para GB
-            const gbMes = totalMBMes / 1024;
-            
-            // Calcular crescimento anual
-            const crescimentoDecimal = crescimento / 100;
-            const gbAno = (gbMes * 12) * (1 + crescimentoDecimal);
-            
-            // Calcular custos mensais
-            const custoOracle = gbMes * oracle;
-            const custoWasabi = gbMes * wasabi;
-            const custoTotal = custoOracle + custoWasabi;
-            
-            // Calcular armazenamento total considerando período de retenção
-            const gbTotal = gbMes * retencao;
-            
-            // Exibir resultados
-            exibirResultados(totalExamesMes, gbMes, gbAno, gbTotal, custoOracle, custoWasabi, custoTotal, detalhes);
+            }, 300);
         }
         
         // Exibir resultados na interface
@@ -1213,10 +1333,15 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const costComparison = document.getElementById('costComparison');
             const detailsSection = document.getElementById('detailsSection');
-            const resultsSection = document.getElementById('resultsSection');
+            const resultsIntro = document.getElementById('resultsIntro');
+            
+            if (!resultsContainer || !costComparison || !detailsSection || !resultsIntro) {
+                console.error("Elementos de resultados não encontrados!");
+                return;
+            }
             
             // Atualizar texto introdutório
-            resultsSection.querySelector('p').textContent = `Resultados baseados nas informações fornecidas (${detalhes.length} modalidades ativas)`;
+            resultsIntro.textContent = `Resultados baseados nas informações fornecidas (${detalhes.length} modalidades ativas)`;
             
             // Resultados principais
             resultsContainer.innerHTML = `
@@ -1301,50 +1426,177 @@
             } else {
                 detailsSection.innerHTML = `
                     <h3 class="details-title"><i class="fas fa-list-alt"></i> Detalhamento por Modalidade</h3>
-                    <p>Nenhuma modalidade com quantidade informada. Preencha os campos de exames/mês para ver os detalhes.</p>
+                    <p>Nenhuma modalidade com quantidade informada.</p>
                 `;
             }
             
             // Rolagem suave para os resultados
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
         
         // Limpar campos de quantidade
         function limparCamposQuantidade() {
             modalidades.forEach(modalidade => {
-                const input = document.getElementById(modalidade.id);
-                input.value = '';
+                const input = document.getElementById(`input-${modalidade.id}`);
+                if (input) {
+                    input.value = '';
+                }
             });
             
             // Limpar resultados
-            const resultsSection = document.getElementById('resultsSection');
-            resultsSection.querySelector('p').textContent = 'Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.';
+            const resultsIntro = document.getElementById('resultsIntro');
+            if (resultsIntro) {
+                resultsIntro.textContent = 'Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.';
+            }
             
-            document.getElementById('resultsContainer').innerHTML = '';
-            document.getElementById('costComparison').innerHTML = '';
-            document.getElementById('detailsSection').innerHTML = '';
+            const resultsContainer = document.getElementById('resultsContainer');
+            const costComparison = document.getElementById('costComparison');
+            const detailsSection = document.getElementById('detailsSection');
+            
+            if (resultsContainer) resultsContainer.innerHTML = '';
+            if (costComparison) costComparison.innerHTML = '';
+            if (detailsSection) detailsSection.innerHTML = '';
+            
+            mostrarMensagem('Campos limpos com sucesso!', 'info');
         }
         
-        // Permitir calcular com a tecla Enter
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && document.getElementById('quantidade-tab').classList.contains('active')) {
-                calcular();
-            }
-        });
-        
-        // Configurar eventos de tabs
-        document.addEventListener('DOMContentLoaded', () => {
-            // Inicializar as abas
-            inicializarModalidades();
-            inicializarConfigTamanhos();
+        // Mostrar mensagem temporária
+        function mostrarMensagem(mensagem, tipo = 'info') {
+            // Remover mensagens anteriores
+            document.querySelectorAll('.mensagem-flutuante').forEach(el => el.remove());
             
-            // Configurar eventos de clique nas tabs
+            // Criar elemento de mensagem
+            const mensagemElement = document.createElement('div');
+            mensagemElement.className = `mensagem-flutuante ${tipo}`;
+            mensagemElement.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'danger' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${mensagem}</span>
+            `;
+            
+            document.body.appendChild(mensagemElement);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                if (mensagemElement.parentNode) {
+                    mensagemElement.remove();
+                }
+            }, 3000);
+        }
+        
+        // Inicializar eventos
+        function inicializarEventos() {
+            console.log("Inicializando eventos..."); // Debug
+            
+            // Botões da aba quantidade
+            const calcularBtn = document.getElementById('calcularBtn');
+            if (calcularBtn) {
+                calcularBtn.addEventListener('click', calcular);
+                console.log("Evento calcular adicionado"); // Debug
+            } else {
+                console.error("Botão calcular não encontrado!");
+            }
+            
+            const limparBtn = document.getElementById('limparBtn');
+            if (limparBtn) {
+                limparBtn.addEventListener('click', limparCamposQuantidade);
+            }
+            
+            const editarTamanhosBtn = document.getElementById('editarTamanhosBtn');
+            if (editarTamanhosBtn) {
+                editarTamanhosBtn.addEventListener('click', () => mudarAba('config'));
+            }
+            
+            // Botões da aba config
+            const salvarTamanhosBtn = document.getElementById('salvarTamanhosBtn');
+            if (salvarTamanhosBtn) {
+                salvarTamanhosBtn.addEventListener('click', salvarTamanhos);
+            }
+            
+            const resetarTamanhosBtn = document.getElementById('resetarTamanhosBtn');
+            if (resetarTamanhosBtn) {
+                resetarTamanhosBtn.addEventListener('click', resetarTamanhos);
+            }
+            
+            const salvarVoltarBtn = document.getElementById('salvarVoltarBtn');
+            if (salvarVoltarBtn) {
+                salvarVoltarBtn.addEventListener('click', salvarTamanhos);
+            }
+            
+            const voltarSemSalvarBtn = document.getElementById('voltarSemSalvarBtn');
+            if (voltarSemSalvarBtn) {
+                voltarSemSalvarBtn.addEventListener('click', () => mudarAba('quantidade'));
+            }
+            
+            // Botões da aba custos
+            const salvarCustosBtn = document.getElementById('salvarCustosBtn');
+            if (salvarCustosBtn) {
+                salvarCustosBtn.addEventListener('click', salvarCustos);
+            }
+            
+            const resetarCustosBtn = document.getElementById('resetarCustosBtn');
+            if (resetarCustosBtn) {
+                resetarCustosBtn.addEventListener('click', resetarCustos);
+            }
+            
+            const salvarCustosVoltarBtn = document.getElementById('salvarCustosVoltarBtn');
+            if (salvarCustosVoltarBtn) {
+                salvarCustosVoltarBtn.addEventListener('click', salvarCustos);
+            }
+            
+            const voltarCustosBtn = document.getElementById('voltarCustosBtn');
+            if (voltarCustosBtn) {
+                voltarCustosBtn.addEventListener('click', () => mudarAba('quantidade'));
+            }
+            
+            // Tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
                     mudarAba(tabId);
                 });
             });
+            
+            // Botões de reset individual (delegation)
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('size-reset-btn') || e.target.closest('.size-reset-btn')) {
+                    const btn = e.target.classList.contains('size-reset-btn') ? e.target : e.target.closest('.size-reset-btn');
+                    const modalidadeId = btn.getAttribute('data-id');
+                    if (modalidadeId) {
+                        resetarTamanhoIndividual(modalidadeId);
+                    }
+                }
+            });
+            
+            // Permitir calcular com a tecla Enter
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && document.getElementById('quantidade-tab').classList.contains('active')) {
+                    calcular();
+                }
+            });
+        }
+        
+        // Inicializar a aplicação quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM carregado, inicializando..."); // Debug
+            
+            // Inicializar os elementos
+            inicializarModalidades();
+            inicializarConfigTamanhos();
+            inicializarEventos();
+            
+            // Configurar valores iniciais para custos (se os elementos existirem)
+            const oracleInput = document.getElementById('oracle');
+            const wasabiInput = document.getElementById('wasabi');
+            const crescimentoInput = document.getElementById('crescimento');
+            
+            if (oracleInput) oracleInput.value = '0.12';
+            if (wasabiInput) wasabiInput.value = '0.04';
+            if (crescimentoInput) crescimentoInput.value = '20';
+            
+            console.log("Inicialização completa!"); // Debug
         });
     </script>
 </body>
