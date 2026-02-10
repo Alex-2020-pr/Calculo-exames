@@ -40,7 +40,7 @@
         }
         
         .container {
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -83,6 +83,54 @@
             color: var(--gray);
             max-width: 800px;
             margin: 0 auto;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .tab:hover {
+            background: var(--light);
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         .dashboard {
@@ -209,6 +257,9 @@
             font-weight: 600;
             color: var(--primary);
             font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .modalidade-size {
@@ -244,6 +295,53 @@
             font-weight: 600;
             color: var(--gray);
             min-width: 80px;
+        }
+        
+        .size-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .size-config-item {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .size-config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .size-config-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .size-config-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .size-config-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: right;
+        }
+        
+        .size-config-input span {
+            font-weight: 600;
+            color: var(--gray);
+            min-width: 50px;
         }
         
         .buttons {
@@ -290,6 +388,16 @@
         
         .btn-secondary:hover {
             background: #dde1e7;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-3px);
         }
         
         .results-card {
@@ -487,6 +595,57 @@
         .percentage input {
             padding-right: 45px;
         }
+        
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .tab-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+        
+        .config-info {
+            background: #e7f3ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .config-info i {
+            color: var(--accent);
+            margin-top: 3px;
+        }
+        
+        .size-reset-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        
+        .size-reset-btn:hover {
+            background: #e0a800;
+        }
     </style>
 </head>
 <body>
@@ -503,89 +662,295 @@
             </div>
         </header>
         
-        <div class="dashboard">
-            <div class="card">
-                <h2 class="card-title"><i class="fas fa-cogs"></i> Configurações de Custo</h2>
+        <div class="tabs">
+            <div class="tab active" data-tab="quantidade">
+                <i class="fas fa-calculator"></i>
+                <span>Quantidade de Exames</span>
+            </div>
+            <div class="tab" data-tab="config">
+                <i class="fas fa-sliders-h"></i>
+                <span>Configurar Tamanhos</span>
+            </div>
+            <div class="tab" data-tab="custos">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Configurar Custos</span>
+            </div>
+        </div>
+        
+        <!-- ABA 1: QUANTIDADE DE EXAMES -->
+        <div class="tab-content active" id="quantidade-tab">
+            <div class="dashboard">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-x-ray"></i> Quantidade de Exames por Mês</h2>
+                    <p>Informe a quantidade média de exames por mês para cada modalidade:</p>
+                    
+                    <div class="modalidades-grid" id="modalidadesContainer">
+                        <!-- As modalidades serão preenchidas via JavaScript -->
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-primary" onclick="calcular()">
+                            <i class="fas fa-calculator"></i> Calcular Armazenamento
+                        </button>
+                        <button class="btn btn-secondary" onclick="limparCamposQuantidade()">
+                            <i class="fas fa-redo"></i> Limpar Campos
+                        </button>
+                    </div>
+                </div>
                 
-                <div class="cost-inputs">
-                    <div class="input-group">
-                        <div class="input-label">
-                            <span>Oracle Storage</span>
-                            <span>R$/GB</span>
-                        </div>
-                        <div class="currency">
-                            <input type="number" id="oracle" class="input-field" step="0.01" min="0" value="0.12" placeholder="0.00">
+                <div class="card">
+                    <div class="tab-header">
+                        <h2 class="card-title"><i class="fas fa-cogs"></i> Configurações Gerais</h2>
+                        <div class="tab-actions">
+                            <button class="btn-small btn-secondary" onclick="mudarAba('config')">
+                                <i class="fas fa-edit"></i> Editar Tamanhos
+                            </button>
                         </div>
                     </div>
                     
                     <div class="input-group">
                         <div class="input-label">
-                            <span>Wasabi Backup</span>
-                            <span>R$/GB</span>
+                            <span>Período de Retenção</span>
+                            <span>meses</span>
                         </div>
-                        <div class="currency">
-                            <input type="number" id="wasabi" class="input-field" step="0.01" min="0" value="0.04" placeholder="0.00">
+                        <select id="retencao" class="input-field">
+                            <option value="12">12 meses (1 ano)</option>
+                            <option value="24">24 meses (2 anos)</option>
+                            <option value="36">36 meses (3 anos)</option>
+                            <option value="60" selected>60 meses (5 anos)</option>
+                            <option value="120">120 meses (10 anos)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="config-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Tamanhos Padrão em Uso:</strong><br>
+                            Os tamanhos dos exames estão configurados com valores médios da indústria. 
+                            Para ajustar esses valores, acesse a aba "Configurar Tamanhos".
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card results-card" id="resultsSection">
+                    <h2 class="card-title"><i class="fas fa-chart-line"></i> Resultados da Simulação</h2>
+                    <p>Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.</p>
+                    
+                    <div class="results-grid" id="resultsContainer">
+                        <!-- Resultados serão preenchidos via JavaScript -->
+                    </div>
+                    
+                    <div class="cost-comparison" id="costComparison">
+                        <!-- Comparação de custos será preenchida via JavaScript -->
+                    </div>
+                    
+                    <div class="details-section" id="detailsSection">
+                        <!-- Detalhes por modalidade serão preenchidos via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ABA 2: CONFIGURAR TAMANHOS -->
+        <div class="tab-content" id="config-tab">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="tab-header">
+                        <h2 class="card-title"><i class="fas fa-sliders-h"></i> Configurar Tamanhos dos Exames</h2>
+                        <div class="tab-actions">
+                            <button class="btn-small btn-success" onclick="salvarTamanhos()">
+                                <i class="fas fa-save"></i> Salvar Tamanhos
+                            </button>
+                            <button class="btn-small btn-secondary" onclick="resetarTamanhos()">
+                                <i class="fas fa-undo"></i> Restaurar Padrão
+                            </button>
                         </div>
                     </div>
                     
+                    <div class="config-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Personalize os tamanhos:</strong><br>
+                            Ajuste os valores em MB conforme a realidade da sua instituição. 
+                            Os valores padrão são baseados em médias da indústria, mas podem variar conforme equipamento, resolução e compressão.
+                        </div>
+                    </div>
+                    
+                    <div class="size-config-grid" id="sizeConfigContainer">
+                        <!-- Configurações de tamanho serão preenchidas via JavaScript -->
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-success" onclick="salvarTamanhos()">
+                            <i class="fas fa-save"></i> Salvar e Voltar para Cálculos
+                        </button>
+                        <button class="btn btn-secondary" onclick="mudarAba('quantidade')">
+                            <i class="fas fa-arrow-left"></i> Voltar sem Salvar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-lightbulb"></i> Guia de Referência</h2>
+                    
                     <div class="input-group">
-                        <div class="input-label">
-                            <span>Crescimento Anual</span>
-                            <span>% por ano</span>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Tamanhos Típicos por Modalidade</h3>
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Exames Simples (10-50 MB):</strong>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li>Raio-X Digital: 10-30 MB</li>
+                                <li>Densitometria Óssea: 15-25 MB</li>
+                                <li>ECG: 2-5 MB</li>
+                                <li>Odonto Panorâmico: 20-40 MB</li>
+                            </ul>
                         </div>
-                        <div class="percentage">
-                            <input type="number" id="crescimento" class="input-field" step="0.1" min="0" value="20" placeholder="0">
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Exames Moderados (50-300 MB):</strong>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li>Ultrassom: 40-100 MB</li>
+                                <li>Mamografia: 100-200 MB</li>
+                                <li>Tomografia (CT) simples: 150-300 MB</li>
+                                <li>CBCT Odontológico: 200-400 MB</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Exames Complexos (300+ MB):</strong>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li>Ressonância Magnética: 300-1000 MB</li>
+                                <li>Tomografia com contraste: 400-800 MB</li>
+                                <li>Tomossíntese Mamária: 500-1000 MB</li>
+                                <li>Endoscopia com vídeo: 800-1500 MB</li>
+                                <li>Hemodinâmica/Angio: 1500-3000 MB</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="config-info" style="margin-top: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Nota:</strong> Esses valores são estimativas. 
+                                O tamanho real pode variar significativamente dependendo da resolução, 
+                                número de cortes, uso de contraste e formato de arquivo (DICOM, JPEG, MPEG, etc.).
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="input-group">
-                    <div class="input-label">
-                        <span>Período de Retenção</span>
-                        <span>meses</span>
+            </div>
+        </div>
+        
+        <!-- ABA 3: CONFIGURAR CUSTOS -->
+        <div class="tab-content" id="custos-tab">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="tab-header">
+                        <h2 class="card-title"><i class="fas fa-dollar-sign"></i> Configurar Custos de Armazenamento</h2>
+                        <div class="tab-actions">
+                            <button class="btn-small btn-success" onclick="salvarCustos()">
+                                <i class="fas fa-save"></i> Salvar Custos
+                            </button>
+                            <button class="btn-small btn-secondary" onclick="resetarCustos()">
+                                <i class="fas fa-undo"></i> Restaurar Padrão
+                            </button>
+                        </div>
                     </div>
-                    <select id="retencao" class="input-field">
-                        <option value="12">12 meses (1 ano)</option>
-                        <option value="24">24 meses (2 anos)</option>
-                        <option value="36">36 meses (3 anos)</option>
-                        <option value="60" selected>60 meses (5 anos)</option>
-                        <option value="120">120 meses (10 anos)</option>
-                    </select>
+                    
+                    <div class="cost-inputs">
+                        <div class="input-group">
+                            <div class="input-label">
+                                <span>Oracle Storage</span>
+                                <span>R$/GB/mês</span>
+                            </div>
+                            <div class="currency">
+                                <input type="number" id="oracle-config" class="input-field" step="0.01" min="0" value="0.12" placeholder="0.00">
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 5px;">
+                                Custo médio: R$ 0.10 - 0.15/GB
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-label">
+                                <span>Wasabi Backup</span>
+                                <span>R$/GB/mês</span>
+                            </div>
+                            <div class="currency">
+                                <input type="number" id="wasabi-config" class="input-field" step="0.01" min="0" value="0.04" placeholder="0.00">
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 5px;">
+                                Custo médio: R$ 0.03 - 0.06/GB
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-label">
+                                <span>Crescimento Anual</span>
+                                <span>% por ano</span>
+                            </div>
+                            <div class="percentage">
+                                <input type="number" id="crescimento-config" class="input-field" step="0.1" min="0" value="20" placeholder="0">
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 5px;">
+                                Média do setor: 15-25%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Informações sobre Custos:</strong><br>
+                            Os custos de armazenamento em nuvem variam conforme o provedor, região, nível de redundância e tipo de acesso (hot/cold storage). 
+                            Consulte diretamente os fornecedores para cotações precisas.
+                        </div>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-success" onclick="salvarCustos()">
+                            <i class="fas fa-save"></i> Salvar e Voltar para Cálculos
+                        </button>
+                        <button class="btn btn-secondary" onclick="mudarAba('quantidade')">
+                            <i class="fas fa-arrow-left"></i> Voltar sem Salvar
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="buttons">
-                    <button class="btn btn-primary" onclick="calcular()">
-                        <i class="fas fa-calculator"></i> Calcular Armazenamento
-                    </button>
-                    <button class="btn btn-secondary" onclick="limparCampos()">
-                        <i class="fas fa-redo"></i> Limpar Campos
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2 class="card-title"><i class="fas fa-x-ray"></i> Modalidades de Exame</h2>
-                <p>Informe a quantidade média de exames por mês para cada modalidade:</p>
-                
-                <div class="modalidades-grid" id="modalidadesContainer">
-                    <!-- As modalidades serão preenchidas via JavaScript -->
-                </div>
-            </div>
-            
-            <div class="card results-card" id="resultsSection">
-                <h2 class="card-title"><i class="fas fa-chart-line"></i> Resultados da Simulação</h2>
-                <p>Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.</p>
-                
-                <div class="results-grid" id="resultsContainer">
-                    <!-- Resultados serão preenchidos via JavaScript -->
-                </div>
-                
-                <div class="cost-comparison" id="costComparison">
-                    <!-- Comparação de custos será preenchida via JavaScript -->
-                </div>
-                
-                <div class="details-section" id="detailsSection">
-                    <!-- Detalhes por modalidade serão preenchidos via JavaScript -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-chart-pie"></i> Projeção de Custos</h2>
+                    
+                    <div class="input-group">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Fatores que Influenciam Custos</h3>
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Tipos de Armazenamento:</strong>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li><strong>Hot Storage:</strong> Acesso rápido (R$ 0.10-0.20/GB) - Para exames recentes</li>
+                                <li><strong>Cool Storage:</strong> Acesso menos frequente (R$ 0.05-0.10/GB) - Para arquivamento</li>
+                                <li><strong>Cold Storage:</strong> Arquivo de longo prazo (R$ 0.01-0.05/GB) - Para retenção legal</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Provedores Populares:</strong>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li><strong>AWS S3:</strong> R$ 0.12-0.25/GB (Standard)</li>
+                                <li><strong>Google Cloud:</strong> R$ 0.10-0.20/GB (Standard)</li>
+                                <li><strong>Azure Blob:</strong> R$ 0.11-0.22/GB (Hot)</li>
+                                <li><strong>Wasabi/Backblaze:</strong> R$ 0.03-0.06/GB (Econômico)</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px;">
+                            <strong>Estratégias de Otimização:</strong>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li>Implementar tiered storage (misturar hot/cold)</li>
+                                <li>Comprimir arquivos DICOM (lossless)</li>
+                                <li>Definir políticas de retenção claras</li>
+                                <li>Considerar armazenamento híbrido (cloud + on-premise)</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -602,8 +967,8 @@
     </div>
 
     <script>
-        // Dados das modalidades médicas
-        const modalidades = [
+        // Dados iniciais das modalidades médicas
+        const modalidadesPadrao = [
             { id: 'rx', nome: 'Raio-X', tamanhoMB: 20, icone: 'fas fa-bone' },
             { id: 'mg', nome: 'Mamografia', tamanhoMB: 150, icone: 'fas fa-female' },
             { id: 'tomo', nome: 'Tomossíntese', tamanhoMB: 800, icone: 'fas fa-layer-group' },
@@ -620,6 +985,9 @@
             { id: 'ecg', nome: 'ECG / Documentos', tamanhoMB: 3, icone: 'fas fa-file-medical' },
             { id: 'foto', nome: 'Fotografia Clínica', tamanhoMB: 10, icone: 'fas fa-camera' }
         ];
+        
+        // Variável global para armazenar as modalidades (pode ser modificada)
+        let modalidades = JSON.parse(JSON.stringify(modalidadesPadrao));
         
         // Inicializar a interface com as modalidades
         function inicializarModalidades() {
@@ -655,6 +1023,140 @@
             });
         }
         
+        // Inicializar a configuração de tamanhos
+        function inicializarConfigTamanhos() {
+            const container = document.getElementById('sizeConfigContainer');
+            container.innerHTML = '';
+            
+            modalidades.forEach(modalidade => {
+                const item = document.createElement('div');
+                item.className = 'size-config-item';
+                
+                item.innerHTML = `
+                    <div class="size-config-header">
+                        <div class="size-config-name">
+                            <i class="${modalidade.icone}"></i> ${modalidade.nome}
+                        </div>
+                        <button class="size-reset-btn" onclick="resetarTamanhoIndividual('${modalidade.id}')">
+                            <i class="fas fa-undo"></i> Padrão
+                        </button>
+                    </div>
+                    <div class="size-config-input">
+                        <input type="number" 
+                               id="config-${modalidade.id}" 
+                               min="0.1" 
+                               step="0.1" 
+                               value="${modalidade.tamanhoMB}">
+                        <span>MB</span>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // Mudar entre abas
+        function mudarAba(abaId) {
+            // Remover classe active de todas as abas
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Ativar aba selecionada
+            document.querySelector(`.tab[data-tab="${abaId}"]`).classList.add('active');
+            document.getElementById(`${abaId}-tab`).classList.add('active');
+            
+            // Se for a aba de quantidade, atualizar os tamanhos exibidos
+            if (abaId === 'quantidade') {
+                atualizarTamanhosExibidos();
+            }
+        }
+        
+        // Atualizar os tamanhos exibidos na aba de quantidade
+        function atualizarTamanhosExibidos() {
+            modalidades.forEach(modalidade => {
+                const sizeElement = document.querySelector(`#${modalidade.id}`).closest('.modalidade-item').querySelector('.modalidade-size');
+                const inputElement = document.querySelector(`#${modalidade.id}`);
+                
+                if (sizeElement && inputElement) {
+                    sizeElement.textContent = `${modalidade.tamanhoMB} MB/exame`;
+                    inputElement.dataset.tamanho = modalidade.tamanhoMB;
+                }
+            });
+        }
+        
+        // Salvar configurações de tamanho
+        function salvarTamanhos() {
+            modalidades.forEach(modalidade => {
+                const input = document.getElementById(`config-${modalidade.id}`);
+                if (input) {
+                    const novoValor = parseFloat(input.value);
+                    if (!isNaN(novoValor) && novoValor > 0) {
+                        modalidade.tamanhoMB = novoValor;
+                    }
+                }
+            });
+            
+            // Atualizar exibição na aba de quantidade
+            atualizarTamanhosExibidos();
+            
+            // Voltar para aba de quantidade
+            mudarAba('quantidade');
+            
+            // Mostrar mensagem de sucesso
+            alert('Tamanhos dos exames atualizados com sucesso!');
+        }
+        
+        // Resetar tamanhos para valores padrão
+        function resetarTamanhos() {
+            if (confirm('Deseja restaurar todos os tamanhos para os valores padrão da indústria?')) {
+                modalidades = JSON.parse(JSON.stringify(modalidadesPadrao));
+                inicializarConfigTamanhos();
+                alert('Tamanhos restaurados para valores padrão.');
+            }
+        }
+        
+        // Resetar tamanho individual
+        function resetarTamanhoIndividual(modalidadeId) {
+            const modalidadePadrao = modalidadesPadrao.find(m => m.id === modalidadeId);
+            if (modalidadePadrao) {
+                const input = document.getElementById(`config-${modalidadeId}`);
+                if (input) {
+                    input.value = modalidadePadrao.tamanhoMB;
+                }
+            }
+        }
+        
+        // Salvar configurações de custo
+        function salvarCustos() {
+            const oracle = document.getElementById('oracle-config').value;
+            const wasabi = document.getElementById('wasabi-config').value;
+            const crescimento = document.getElementById('crescimento-config').value;
+            
+            document.getElementById('oracle').value = oracle;
+            document.getElementById('wasabi').value = wasabi;
+            document.getElementById('crescimento').value = crescimento;
+            
+            // Voltar para aba de quantidade
+            mudarAba('quantidade');
+            
+            // Mostrar mensagem de sucesso
+            alert('Configurações de custo atualizadas com sucesso!');
+        }
+        
+        // Resetar custos para valores padrão
+        function resetarCustos() {
+            if (confirm('Deseja restaurar todos os custos para os valores padrão?')) {
+                document.getElementById('oracle-config').value = '0.12';
+                document.getElementById('wasabi-config').value = '0.04';
+                document.getElementById('crescimento-config').value = '20';
+            }
+        }
+        
         // Função principal de cálculo
         function calcular() {
             // Obter valores de custo
@@ -671,7 +1173,7 @@
             modalidades.forEach(modalidade => {
                 const input = document.getElementById(modalidade.id);
                 const quantidade = parseFloat(input.value) || 0;
-                const tamanhoMB = parseFloat(input.dataset.tamanho);
+                const tamanhoMB = modalidade.tamanhoMB;
                 
                 if (quantidade > 0) {
                     const tamanhoTotalMB = quantidade * tamanhoMB;
@@ -807,15 +1309,8 @@
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
-        // Limpar todos os campos
-        function limparCampos() {
-            // Limpar campos de custo
-            document.getElementById('oracle').value = '0.12';
-            document.getElementById('wasabi').value = '0.04';
-            document.getElementById('crescimento').value = '20';
-            document.getElementById('retencao').value = '60';
-            
-            // Limpar campos de modalidades
+        // Limpar campos de quantidade
+        function limparCamposQuantidade() {
             modalidades.forEach(modalidade => {
                 const input = document.getElementById(modalidade.id);
                 input.value = '';
@@ -832,14 +1327,24 @@
         
         // Permitir calcular com a tecla Enter
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && document.getElementById('quantidade-tab').classList.contains('active')) {
                 calcular();
             }
         });
         
-        // Inicializar a aplicação quando a página carregar
+        // Configurar eventos de tabs
         document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar as abas
             inicializarModalidades();
+            inicializarConfigTamanhos();
+            
+            // Configurar eventos de clique nas tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    mudarAba(tabId);
+                });
+            });
         });
     </script>
 </body>
