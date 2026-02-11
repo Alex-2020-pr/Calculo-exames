@@ -472,7 +472,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* NOVA SEÇÃO: Projeção de Longo Prazo */
         .projection-section {
             margin-top: 40px;
             padding-top: 30px;
@@ -593,22 +592,6 @@
         .projection-note i {
             color: var(--accent-light);
             font-size: 1.2rem;
-        }
-        
-        .storage-comparison {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .storage-comparison span {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px 10px;
-            border-radius: 5px;
         }
         
         .cost-comparison {
@@ -1026,20 +1009,20 @@
                         </div>
                     </div>
                     
-                   <div class="input-group">
-                    <div class="input-label">
-                        <span>Período de Retenção</span>
-                        <span>meses</span>
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Período de Retenção</span>
+                            <span>meses</span>
+                        </div>
+                        <select id="retencao" class="input-field">
+                            <option value="12">12 meses (1 ano)</option>
+                            <option value="24">24 meses (2 anos)</option>
+                            <option value="36">36 meses (3 anos)</option>
+                            <option value="60" selected>60 meses (5 anos)</option>
+                            <option value="120">120 meses (10 anos)</option>
+                            <option value="240">240 meses (20 anos)</option>
+                        </select>
                     </div>
-                    <select id="retencao" class="input-field">
-                        <option value="12">12 meses (1 ano)</option>
-                        <option value="24">24 meses (2 anos)</option>
-                        <option value="36">36 meses (3 anos)</option>
-                        <option value="60" selected>60 meses (5 anos)</option>
-                        <option value="120">120 meses (10 anos)</option>
-                        <option value="240">240 meses (20 anos)</option>
-                    </select>
-                </div>
                     
                     <div class="config-info">
                         <i class="fas fa-info-circle"></i>
@@ -1102,7 +1085,6 @@
                         <!-- Custos de expansão serão preenchidos via JavaScript -->
                     </div>
                     
-                    <!-- NOVA SEÇÃO: Projeção de Longo Prazo -->
                     <div class="projection-section" id="projectionSection">
                         <h3 class="projection-title">
                             <i class="fas fa-chart-bar"></i>
@@ -1178,6 +1160,7 @@
                                 <li>Densitometria Óssea (DO): 1 MB</li>
                                 <li>ECG: 1 MB</li>
                                 <li>Ultrassom (US): 8 MB</li>
+                                <li>Doppler (US): 12 MB</li>
                                 <li>Endoscopia (ES): 7 MB</li>
                                 <li>Pet/CT: 15 MB</li>
                                 <li>Oftalmologia: 2 MB</li>
@@ -1330,6 +1313,7 @@
             { id: 'do', nome: 'Densitometria Óssea (DO)', tamanhoMB: 1, icone: 'fas fa-weight' },
             { id: 'mg', nome: 'Mamografia (MG)', tamanhoMB: 20, icone: 'fas fa-female' },
             { id: 'us', nome: 'Ultrassom (US)', tamanhoMB: 8, icone: 'fas fa-wave-square' },
+            { id: 'doppler', nome: 'Doppler (US)', tamanhoMB: 12, icone: 'fas fa-tachometer-alt' },
             { id: 'es', nome: 'Endoscopia (ES)', tamanhoMB: 7, icone: 'fas fa-video' },
             { id: 'ct', nome: 'Tomografia (CT)', tamanhoMB: 180, icone: 'fas fa-cogs' },
             { id: 'mr', nome: 'Ressonância Magnética (MR)', tamanhoMB: 100, icone: 'fas fa-magnet' },
@@ -1356,6 +1340,7 @@
                                modalidade.id === 'mr' ? 30 : 
                                modalidade.id === 'cr' ? 200 : 
                                modalidade.id === 'us' ? 150 : 
+                               modalidade.id === 'doppler' ? 80 :
                                modalidade.id === 'xa' ? 40 : 80;
                 
                 item.innerHTML = `
@@ -1415,7 +1400,6 @@
         
         // Mudar entre abas
         function mudarAba(abaId) {
-            // Remover classe active de todas as abas
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1424,11 +1408,9 @@
                 content.classList.remove('active');
             });
             
-            // Ativar aba selecionada
             document.querySelector(`.tab[data-tab="${abaId}"]`).classList.add('active');
             document.getElementById(`${abaId}-tab`).classList.add('active');
             
-            // Se for a aba de quantidade, atualizar os tamanhos exibidos
             if (abaId === 'quantidade') {
                 atualizarTamanhosExibidos();
             }
@@ -1456,13 +1438,8 @@
                 }
             });
             
-            // Atualizar exibição na aba de quantidade
             atualizarTamanhosExibidos();
-            
-            // Voltar para aba de quantidade
             mudarAba('quantidade');
-            
-            // Mostrar mensagem de sucesso
             mostrarMensagem('Tamanhos dos exames atualizados com sucesso!', 'success');
         }
         
@@ -1501,10 +1478,7 @@
             document.getElementById('wasabi').value = wasabi;
             document.getElementById('crescimento').value = crescimento;
             
-            // Voltar para aba de quantidade
             mudarAba('quantidade');
-            
-            // Mostrar mensagem de sucesso
             mostrarMensagem('Configurações de custo atualizadas com sucesso!', 'success');
         }
         
@@ -1520,16 +1494,14 @@
         
         // Função para calcular projeções de longo prazo
         function calcularProjecoes(gbMes, crescimento, custoPorGB) {
-            const periodos = [3, 5, 10, 20]; // anos
+            const periodos = [3, 5, 10, 20];
             const projecoes = [];
             
             periodos.forEach(anos => {
                 let gbTotal = 0;
                 let custoTotal = 0;
                 
-                // Calcular acumulado mês a mês
                 for (let mes = 1; mes <= anos * 12; mes++) {
-                    // Crescimento anual composto mensalmente
                     const fatorCrescimento = Math.pow(1 + crescimento/100, Math.floor(mes/12));
                     const gbMesAtual = gbMes * fatorCrescimento;
                     gbTotal += gbMesAtual;
@@ -1551,14 +1523,11 @@
         
         // Função principal de cálculo
         function calcular() {
-            // Mostrar loading
             const loadingElement = document.getElementById('loadingResults');
             if (loadingElement) loadingElement.style.display = 'block';
             
-            // Pequeno delay para mostrar o loading
             setTimeout(() => {
                 try {
-                    // Obter valores de custo
                     const oracleInput = document.getElementById('oracle');
                     const wasabiInput = document.getElementById('wasabi');
                     const crescimentoInput = document.getElementById('crescimento');
@@ -1569,7 +1538,6 @@
                     const crescimento = crescimentoInput ? parseFloat(crescimentoInput.value) || 0 : 20;
                     const retencao = retencaoSelect ? parseInt(retencaoSelect.value) || 60 : 60;
                     
-                    // Calcular total de armazenamento
                     let totalExamesMes = 0;
                     let totalMBMes = 0;
                     const detalhes = [];
@@ -1603,43 +1571,34 @@
                         return;
                     }
                     
-                    // Converter para GB e TB
                     const gbMes = totalMBMes / 1024;
                     const tbMes = gbMes / 1024;
                     
-                    // Calcular crescimento anual
                     const crescimentoDecimal = crescimento / 100;
                     const gbAno = (gbMes * 12) * (1 + crescimentoDecimal);
                     const tbAno = gbAno / 1024;
                     
-                    // Calcular armazenamento total considerando período de retenção
                     const gbTotal = gbMes * retencao;
                     const tbTotal = gbTotal / 1024;
                     
-                    // Calcular custos mensais
                     const custoOracle = gbMes * oracle;
                     const custoWasabi = gbMes * wasabi;
                     const custoTotal = custoOracle + custoWasabi;
                     const custoPorGB = oracle + wasabi;
                     
-                    // Calcular custos adicionais por TB
                     const custoOraclePorTB = 1024 * oracle;
                     const custoWasabiPorTB = 1024 * wasabi;
                     
-                    // Calcular custos anuais
                     const custoOracleAnual = custoOracle * 12;
                     const custoWasabiAnual = custoWasabi * 12;
                     const custoTotalAnual = custoTotal * 12;
                     
-                    // Calcular projeções de longo prazo
                     const projecoes = calcularProjecoes(gbMes, crescimento, custoPorGB);
                     
-                    // Exibir resultados
                     exibirResultados(totalExamesMes, gbMes, tbMes, gbAno, tbAno, gbTotal, tbTotal,
                                    custoOracle, custoWasabi, custoTotal, custoOraclePorTB, custoWasabiPorTB,
                                    custoOracleAnual, custoWasabiAnual, custoTotalAnual, detalhes, projecoes, crescimento);
                     
-                    // Esconder loading
                     if (loadingElement) loadingElement.style.display = 'none';
                     
                 } catch (error) {
@@ -1667,15 +1626,12 @@
                 return;
             }
             
-            // Atualizar texto introdutório
             resultsIntro.textContent = `Resultados baseados nas informações fornecidas (${detalhes.length} modalidades ativas)`;
             
-            // Atualizar display da taxa de crescimento
             if (crescimentoDisplay) {
                 crescimentoDisplay.textContent = `${crescimento}%`;
             }
             
-            // Resultados principais com conversões GB/TB
             resultsContainer.innerHTML = `
                 <div class="result-box">
                     <div class="result-label">Exames por Mês</div>
@@ -1702,7 +1658,6 @@
                 </div>
             `;
             
-            // Comparação de custos com detalhes
             costComparison.innerHTML = `
                 <div class="cost-box">
                     <div class="cost-title"><i class="fas fa-database"></i> Oracle Storage</div>
@@ -1760,7 +1715,6 @@
                 </div>
             `;
             
-            // Custos de expansão
             expansionCosts.innerHTML = `
                 <div class="expansion-title">
                     <i class="fas fa-expand-alt"></i> Custos de Expansão - Informações Adicionais
@@ -1792,7 +1746,6 @@
                 </div>
             `;
             
-            // NOVA SEÇÃO: Projeções de Longo Prazo
             let projectionHTML = '';
             
             projecoes.forEach((proj, index) => {
@@ -1832,7 +1785,6 @@
             
             projectionContainer.innerHTML = projectionHTML;
             
-            // Detalhes por modalidade
             if (detalhes.length > 0) {
                 let detailsHTML = `
                     <h3 class="details-title"><i class="fas fa-list-alt"></i> Detalhamento por Modalidade</h3>
@@ -1876,7 +1828,6 @@
                 `;
             }
             
-            // Rolagem suave para os resultados
             const resultsSection = document.getElementById('resultsSection');
             if (resultsSection) {
                 resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1892,7 +1843,6 @@
                 }
             });
             
-            // Limpar resultados
             const resultsIntro = document.getElementById('resultsIntro');
             if (resultsIntro) {
                 resultsIntro.textContent = 'Preencha os campos acima e clique em "Calcular Armazenamento" para ver os resultados.';
@@ -1915,10 +1865,8 @@
         
         // Mostrar mensagem temporária
         function mostrarMensagem(mensagem, tipo = 'info') {
-            // Remover mensagens anteriores
             document.querySelectorAll('.mensagem-flutuante').forEach(el => el.remove());
             
-            // Criar elemento de mensagem
             const mensagemElement = document.createElement('div');
             mensagemElement.className = `mensagem-flutuante ${tipo}`;
             mensagemElement.innerHTML = `
@@ -1928,7 +1876,6 @@
             
             document.body.appendChild(mensagemElement);
             
-            // Remover após 3 segundos
             setTimeout(() => {
                 if (mensagemElement.parentNode) {
                     mensagemElement.remove();
@@ -1938,7 +1885,6 @@
         
         // Inicializar eventos
         function inicializarEventos() {
-            // Botões da aba quantidade
             const calcularBtn = document.getElementById('calcularBtn');
             if (calcularBtn) {
                 calcularBtn.addEventListener('click', calcular);
@@ -1954,7 +1900,6 @@
                 editarTamanhosBtn.addEventListener('click', () => mudarAba('config'));
             }
             
-            // Botões da aba config
             const salvarTamanhosBtn = document.getElementById('salvarTamanhosBtn');
             if (salvarTamanhosBtn) {
                 salvarTamanhosBtn.addEventListener('click', salvarTamanhos);
@@ -1975,7 +1920,6 @@
                 voltarSemSalvarBtn.addEventListener('click', () => mudarAba('quantidade'));
             }
             
-            // Botões da aba custos
             const salvarCustosBtn = document.getElementById('salvarCustosBtn');
             if (salvarCustosBtn) {
                 salvarCustosBtn.addEventListener('click', salvarCustos);
@@ -1996,7 +1940,6 @@
                 voltarCustosBtn.addEventListener('click', () => mudarAba('quantidade'));
             }
             
-            // Tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
@@ -2004,7 +1947,6 @@
                 });
             });
             
-            // Botões de reset individual (delegation)
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('size-reset-btn') || e.target.closest('.size-reset-btn')) {
                     const btn = e.target.classList.contains('size-reset-btn') ? e.target : e.target.closest('.size-reset-btn');
@@ -2015,7 +1957,6 @@
                 }
             });
             
-            // Permitir calcular com a tecla Enter
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && document.getElementById('quantidade-tab').classList.contains('active')) {
                     calcular();
@@ -2023,9 +1964,7 @@
             });
         }
         
-        // Inicializar a aplicação quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializar os elementos
             inicializarModalidades();
             inicializarConfigTamanhos();
             inicializarEventos();
