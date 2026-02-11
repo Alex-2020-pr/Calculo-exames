@@ -470,6 +470,24 @@
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .conversion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .conversion-label {
+            font-weight: 300;
+        }
+        
+        .conversion-value {
+            font-weight: 600;
+            color: var(--accent-light);
         }
         
         .projection-section {
@@ -554,7 +572,36 @@
         .projection-storage-label {
             font-size: 0.9rem;
             opacity: 0.8;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
+        }
+        
+        .projection-units {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .projection-unit-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .projection-unit-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .projection-unit-label {
+            opacity: 0.8;
+        }
+        
+        .projection-unit-value {
+            font-weight: 600;
+            color: var(--accent-light);
         }
         
         .projection-cost {
@@ -947,6 +994,15 @@
             visibility: visible;
             opacity: 1;
         }
+        
+        .unit-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1326,6 +1382,19 @@
         // Variável global para armazenar as modalidades (pode ser modificada)
         let modalidades = JSON.parse(JSON.stringify(modalidadesPadrao));
         
+        // Função para formatar números com separadores
+        function formatarNumero(valor, casasDecimais = 2) {
+            return valor.toLocaleString('pt-BR', { 
+                minimumFractionDigits: casasDecimais, 
+                maximumFractionDigits: casasDecimais 
+            });
+        }
+        
+        // Função para formatar grandes números sem casas decimais
+        function formatarInteiro(valor) {
+            return Math.round(valor).toLocaleString('pt-BR');
+        }
+        
         // Inicializar a interface com as modalidades
         function inicializarModalidades() {
             const container = document.getElementById('modalidadesContainer');
@@ -1508,11 +1577,15 @@
                     custoTotal += gbMesAtual * custoPorGB;
                 }
                 
+                const mbTotal = gbTotal * 1024;
+                const tbTotal = gbTotal / 1024;
+                
                 projecoes.push({
                     anos: anos,
                     meses: anos * 12,
+                    mbTotal: mbTotal,
                     gbTotal: gbTotal,
-                    tbTotal: gbTotal / 1024,
+                    tbTotal: tbTotal,
                     custoTotal: custoTotal,
                     custoTotalFormatado: custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                 });
@@ -1573,12 +1646,15 @@
                     
                     const gbMes = totalMBMes / 1024;
                     const tbMes = gbMes / 1024;
+                    const mbMes = totalMBMes;
                     
                     const crescimentoDecimal = crescimento / 100;
-                    const gbAno = (gbMes * 12) * (1 + crescimentoDecimal);
+                    const mbAno = totalMBMes * 12 * (1 + crescimentoDecimal);
+                    const gbAno = mbAno / 1024;
                     const tbAno = gbAno / 1024;
                     
-                    const gbTotal = gbMes * retencao;
+                    const mbTotal = totalMBMes * retencao;
+                    const gbTotal = mbTotal / 1024;
                     const tbTotal = gbTotal / 1024;
                     
                     const custoOracle = gbMes * oracle;
@@ -1595,9 +1671,16 @@
                     
                     const projecoes = calcularProjecoes(gbMes, crescimento, custoPorGB);
                     
-                    exibirResultados(totalExamesMes, gbMes, tbMes, gbAno, tbAno, gbTotal, tbTotal,
-                                   custoOracle, custoWasabi, custoTotal, custoOraclePorTB, custoWasabiPorTB,
-                                   custoOracleAnual, custoWasabiAnual, custoTotalAnual, detalhes, projecoes, crescimento);
+                    exibirResultados(
+                        totalExamesMes, 
+                        mbMes, gbMes, tbMes,
+                        mbAno, gbAno, tbAno,
+                        mbTotal, gbTotal, tbTotal,
+                        custoOracle, custoWasabi, custoTotal, 
+                        custoOraclePorTB, custoWasabiPorTB,
+                        custoOracleAnual, custoWasabiAnual, custoTotalAnual, 
+                        detalhes, projecoes, crescimento, retencao
+                    );
                     
                     if (loadingElement) loadingElement.style.display = 'none';
                     
@@ -1610,9 +1693,16 @@
         }
         
         // Exibir resultados na interface
-        function exibirResultados(totalExamesMes, gbMes, tbMes, gbAno, tbAno, gbTotal, tbTotal,
-                                custoOracle, custoWasabi, custoTotal, custoOraclePorTB, custoWasabiPorTB,
-                                custoOracleAnual, custoWasabiAnual, custoTotalAnual, detalhes, projecoes, crescimento) {
+        function exibirResultados(
+            totalExamesMes,
+            mbMes, gbMes, tbMes,
+            mbAno, gbAno, tbAno,
+            mbTotal, gbTotal, tbTotal,
+            custoOracle, custoWasabi, custoTotal,
+            custoOraclePorTB, custoWasabiPorTB,
+            custoOracleAnual, custoWasabiAnual, custoTotalAnual,
+            detalhes, projecoes, crescimento, retencao
+        ) {
             const resultsContainer = document.getElementById('resultsContainer');
             const costComparison = document.getElementById('costComparison');
             const expansionCosts = document.getElementById('expansionCosts');
@@ -1632,89 +1722,123 @@
                 crescimentoDisplay.textContent = `${crescimento}%`;
             }
             
+            // Cards de resultados com todas as unidades
             resultsContainer.innerHTML = `
                 <div class="result-box">
                     <div class="result-label">Exames por Mês</div>
-                    <div class="result-value">${totalExamesMes.toLocaleString('pt-BR')}</div>
+                    <div class="result-value">${formatarInteiro(totalExamesMes)}</div>
                     <div class="result-unit">exames</div>
                 </div>
                 <div class="result-box">
                     <div class="result-label">Armazenamento Mensal</div>
-                    <div class="result-value">${tbMes.toFixed(3)}</div>
+                    <div class="result-value">${formatarNumero(tbMes, 3)}</div>
                     <div class="result-unit">TB/mês</div>
-                    <div class="result-conversion">(equivalente a ${gbMes.toFixed(2)} GB)</div>
+                    <div class="result-conversion">
+                        <div class="conversion-item">
+                            <span class="conversion-label">GB:</span>
+                            <span class="conversion-value">${formatarNumero(gbMes, 2)} GB</span>
+                        </div>
+                        <div class="conversion-item">
+                            <span class="conversion-label">MB:</span>
+                            <span class="conversion-value">${formatarInteiro(mbMes)} MB</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="result-box">
                     <div class="result-label">Armazenamento Anual</div>
-                    <div class="result-value">${tbAno.toFixed(3)}</div>
+                    <div class="result-value">${formatarNumero(tbAno, 3)}</div>
                     <div class="result-unit">TB/ano</div>
-                    <div class="result-conversion">(equivalente a ${gbAno.toFixed(2)} GB)</div>
+                    <div class="result-conversion">
+                        <div class="conversion-item">
+                            <span class="conversion-label">GB:</span>
+                            <span class="conversion-value">${formatarNumero(gbAno, 2)} GB</span>
+                        </div>
+                        <div class="conversion-item">
+                            <span class="conversion-label">MB:</span>
+                            <span class="conversion-value">${formatarInteiro(mbAno)} MB</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="result-box">
                     <div class="result-label">Armazenamento Total</div>
-                    <div class="result-value">${tbTotal.toFixed(3)}</div>
+                    <div class="result-value">${formatarNumero(tbTotal, 3)}</div>
                     <div class="result-unit">TB total</div>
-                    <div class="result-conversion">(${document.getElementById('retencao').value} meses)</div>
+                    <div class="result-conversion">
+                        <div class="conversion-item">
+                            <span class="conversion-label">GB:</span>
+                            <span class="conversion-value">${formatarNumero(gbTotal, 2)} GB</span>
+                        </div>
+                        <div class="conversion-item">
+                            <span class="conversion-label">MB:</span>
+                            <span class="conversion-value">${formatarInteiro(mbTotal)} MB</span>
+                        </div>
+                        <div class="conversion-item" style="margin-top: 5px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px;">
+                            <span class="conversion-label">Período:</span>
+                            <span class="conversion-value">${retencao} meses</span>
+                        </div>
+                    </div>
                 </div>
             `;
             
+            // Comparação de custos com detalhes
             costComparison.innerHTML = `
                 <div class="cost-box">
                     <div class="cost-title"><i class="fas fa-database"></i> Oracle Storage</div>
-                    <div class="cost-amount">R$ ${custoOracle.toFixed(2)}</div>
+                    <div class="cost-amount">R$ ${formatarNumero(custoOracle, 2)}</div>
                     <div class="cost-details">
                         <div class="cost-detail-item">
                             <span>Mensal:</span>
-                            <span>R$ ${custoOracle.toFixed(2)}</span>
+                            <span>R$ ${formatarNumero(custoOracle, 2)}</span>
                         </div>
                         <div class="cost-detail-item">
                             <span>Anual:</span>
-                            <span>R$ ${custoOracleAnual.toFixed(2)}</span>
+                            <span>R$ ${formatarNumero(custoOracleAnual, 2)}</span>
                         </div>
                         <div class="cost-detail-item">
                             <span>Por TB adicional:</span>
-                            <span>R$ ${custoOraclePorTB.toFixed(2)}/mês</span>
+                            <span>R$ ${formatarNumero(custoOraclePorTB, 2)}/mês</span>
                         </div>
                     </div>
                 </div>
                 <div class="cost-box">
                     <div class="cost-title"><i class="fas fa-hdd"></i> Wasabi Backup</div>
-                    <div class="cost-amount">R$ ${custoWasabi.toFixed(2)}</div>
+                    <div class="cost-amount">R$ ${formatarNumero(custoWasabi, 2)}</div>
                     <div class="cost-details">
                         <div class="cost-detail-item">
                             <span>Mensal:</span>
-                            <span>R$ ${custoWasabi.toFixed(2)}</span>
+                            <span>R$ ${formatarNumero(custoWasabi, 2)}</span>
                         </div>
                         <div class="cost-detail-item">
                             <span>Anual:</span>
-                            <span>R$ ${custoWasabiAnual.toFixed(2)}</span>
+                            <span>R$ ${formatarNumero(custoWasabiAnual, 2)}</span>
                         </div>
                         <div class="cost-detail-item">
                             <span>Por TB adicional:</span>
-                            <span>R$ ${custoWasabiPorTB.toFixed(2)}/mês</span>
+                            <span>R$ ${formatarNumero(custoWasabiPorTB, 2)}/mês</span>
                         </div>
                     </div>
                 </div>
                 <div class="cost-box" style="background: rgba(255, 255, 255, 0.15);">
                     <div class="cost-title"><i class="fas fa-file-invoice-dollar"></i> Custo Total</div>
-                    <div class="cost-amount" style="color: #4dffb8;">R$ ${custoTotal.toFixed(2)}</div>
+                    <div class="cost-amount" style="color: #4dffb8;">R$ ${formatarNumero(custoTotal, 2)}</div>
                     <div class="cost-details">
                         <div class="cost-detail-item">
                             <span>Mensal:</span>
-                            <span style="color: #4dffb8;">R$ ${custoTotal.toFixed(2)}</span>
+                            <span style="color: #4dffb8;">R$ ${formatarNumero(custoTotal, 2)}</span>
                         </div>
                         <div class="cost-detail-item">
                             <span>Anual:</span>
-                            <span style="color: #4dffb8;">R$ ${custoTotalAnual.toFixed(2)}</span>
+                            <span style="color: #4dffb8;">R$ ${formatarNumero(custoTotalAnual, 2)}</span>
                         </div>
                         <div class="cost-detail-item">
                             <span>Por TB adicional:</span>
-                            <span style="color: #4dffb8;">R$ ${(custoOraclePorTB + custoWasabiPorTB).toFixed(2)}/mês</span>
+                            <span style="color: #4dffb8;">R$ ${formatarNumero(custoOraclePorTB + custoWasabiPorTB, 2)}/mês</span>
                         </div>
                     </div>
                 </div>
             `;
             
+            // Custos de expansão
             expansionCosts.innerHTML = `
                 <div class="expansion-title">
                     <i class="fas fa-expand-alt"></i> Custos de Expansão - Informações Adicionais
@@ -1722,22 +1846,22 @@
                 <div class="expansion-grid">
                     <div class="expansion-item">
                         <div class="expansion-label">Custo por TB adicional (Oracle)</div>
-                        <div class="expansion-value">R$ ${custoOraclePorTB.toFixed(2)}/mês</div>
+                        <div class="expansion-value">R$ ${formatarNumero(custoOraclePorTB, 2)}/mês</div>
                         <div class="expansion-note">Para cada TB extra de armazenamento Oracle</div>
                     </div>
                     <div class="expansion-item">
                         <div class="expansion-label">Custo por TB adicional (Wasabi)</div>
-                        <div class="expansion-value">R$ ${custoWasabiPorTB.toFixed(2)}/mês</div>
+                        <div class="expansion-value">R$ ${formatarNumero(custoWasabiPorTB, 2)}/mês</div>
                         <div class="expansion-note">Para cada TB extra de armazenamento Wasabi</div>
                     </div>
                     <div class="expansion-item">
                         <div class="expansion-label">Projeção de custo anual (Oracle)</div>
-                        <div class="expansion-value">R$ ${custoOracleAnual.toFixed(2)}</div>
+                        <div class="expansion-value">R$ ${formatarNumero(custoOracleAnual, 2)}</div>
                         <div class="expansion-note">Custo estimado para 12 meses</div>
                     </div>
                     <div class="expansion-item">
                         <div class="expansion-label">Projeção de custo anual (Wasabi)</div>
-                        <div class="expansion-value">R$ ${custoWasabiAnual.toFixed(2)}</div>
+                        <div class="expansion-value">R$ ${formatarNumero(custoWasabiAnual, 2)}</div>
                         <div class="expansion-note">Custo estimado para 12 meses</div>
                     </div>
                 </div>
@@ -1746,6 +1870,7 @@
                 </div>
             `;
             
+            // Projeções de Longo Prazo com todas as unidades
             let projectionHTML = '';
             
             projecoes.forEach((proj, index) => {
@@ -1761,10 +1886,20 @@
                             ${proj.anos} anos
                             <span>${proj.meses} meses</span>
                         </div>
-                        <div class="projection-storage">${proj.tbTotal.toFixed(2)}</div>
+                        <div class="projection-storage">${formatarNumero(proj.tbTotal, 2)}</div>
                         <div class="projection-storage-label">TB acumulados</div>
-                        <div class="projection-storage" style="font-size: 1.4rem; margin-top: 5px;">${proj.gbTotal.toFixed(0)}</div>
-                        <div class="projection-storage-label">GB acumulados</div>
+                        
+                        <div class="projection-units">
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">GB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(proj.gbTotal)} GB</span>
+                            </div>
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">MB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(proj.mbTotal)} MB</span>
+                            </div>
+                        </div>
+                        
                         <div class="projection-cost">
                             <div class="projection-cost-item">
                                 <span>Custo Total:</span>
@@ -1772,11 +1907,11 @@
                             </div>
                             <div class="projection-cost-item">
                                 <span>Custo médio/mês:</span>
-                                <span>R$ ${(proj.custoTotal / proj.meses).toFixed(2)}</span>
+                                <span>R$ ${formatarNumero(proj.custoTotal / proj.meses, 2)}</span>
                             </div>
                             <div class="projection-cost-item">
                                 <span>GB/mês (média):</span>
-                                <span>${(proj.gbTotal / proj.meses).toFixed(0)} GB</span>
+                                <span>${formatarInteiro(proj.gbTotal / proj.meses)} GB</span>
                             </div>
                         </div>
                     </div>
@@ -1785,6 +1920,7 @@
             
             projectionContainer.innerHTML = projectionHTML;
             
+            // Detalhes por modalidade
             if (detalhes.length > 0) {
                 let detailsHTML = `
                     <h3 class="details-title"><i class="fas fa-list-alt"></i> Detalhamento por Modalidade</h3>
@@ -1802,15 +1938,15 @@
                 `;
                 
                 detalhes.forEach(detalhe => {
-                    const percentual = (detalhe.tamanhoTotalMB / (gbMes * 1024)) * 100;
+                    const percentual = (detalhe.tamanhoTotalMB / mbMes) * 100;
                     
                     detailsHTML += `
                         <tr>
                             <td>${detalhe.nome}</td>
-                            <td style="text-align: right;">${detalhe.quantidade.toLocaleString('pt-BR')}</td>
-                            <td style="text-align: right;">${detalhe.tamanhoPorExameMB} MB</td>
-                            <td style="text-align: right;" class="highlight">${(detalhe.tamanhoTotalMB / 1024).toFixed(2)} GB</td>
-                            <td style="text-align: right;">${percentual.toFixed(1)}%</td>
+                            <td style="text-align: right;">${formatarInteiro(detalhe.quantidade)}</td>
+                            <td style="text-align: right;">${formatarInteiro(detalhe.tamanhoPorExameMB)} MB</td>
+                            <td style="text-align: right;" class="highlight">${formatarNumero(detalhe.tamanhoTotalMB / 1024, 2)} GB</td>
+                            <td style="text-align: right;">${formatarNumero(percentual, 1)}%</td>
                         </tr>
                     `;
                 });
