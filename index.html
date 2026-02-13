@@ -511,21 +511,9 @@
         
         .projection-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        @media (max-width: 1200px) {
-            .projection-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .projection-grid {
-                grid-template-columns: 1fr;
-            }
+            margin-bottom: 10px;
         }
         
         .projection-card {
@@ -534,6 +522,9 @@
             padding: 20px;
             border-left: 4px solid;
             transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .projection-card:hover {
@@ -541,6 +532,7 @@
             background: rgba(255, 255, 255, 0.15);
         }
         
+        .projection-card-1y { border-left-color: #9C27B0; }
         .projection-card-3y { border-left-color: #4CAF50; }
         .projection-card-5y { border-left-color: #2196F3; }
         .projection-card-10y { border-left-color: #FF9800; }
@@ -608,7 +600,7 @@
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
             padding: 12px;
-            margin-top: 10px;
+            margin-top: auto;
         }
         
         .projection-cost-item {
@@ -639,6 +631,21 @@
         .projection-note i {
             color: var(--accent-light);
             font-size: 1.2rem;
+        }
+        
+        .period-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .period-badge i {
+            color: var(--accent-light);
         }
         
         .cost-comparison {
@@ -994,15 +1001,6 @@
             visibility: visible;
             opacity: 1;
         }
-        
-        .unit-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            margin-left: 5px;
-        }
     </style>
 </head>
 <body>
@@ -1141,14 +1139,31 @@
                         <!-- Custos de expansão serão preenchidos via JavaScript -->
                     </div>
                     
+                    <!-- NOVA SEÇÃO: Projeção de Longo Prazo com 1 ano incluído -->
                     <div class="projection-section" id="projectionSection">
                         <h3 class="projection-title">
                             <i class="fas fa-chart-bar"></i>
                             Projeção de Armazenamento e Custos por Período
                         </h3>
-                        <div class="projection-grid" id="projectionContainer">
-                            <!-- Projeções serão preenchidas via JavaScript -->
+                        
+                        <!-- Períodos de Curto Prazo (1 e 3 anos) -->
+                        <div class="period-badge">
+                            <i class="fas fa-clock"></i> Curto Prazo - Planejamento Imediato e Anual
                         </div>
+                        <div class="projection-grid" id="projectionContainerShort">
+                            <!-- Cards de 1 e 3 anos serão inseridos aqui -->
+                        </div>
+                        
+                        <!-- Períodos de Médio/Longo Prazo (5, 10 e 20 anos) -->
+                        <div style="margin-top: 30px;">
+                            <div class="period-badge">
+                                <i class="fas fa-calendar-alt"></i> Médio/Longo Prazo - Expansão e Arquivo Morto
+                            </div>
+                            <div class="projection-grid" id="projectionContainerLong">
+                                <!-- Cards de 5, 10 e 20 anos serão inseridos aqui -->
+                            </div>
+                        </div>
+                        
                         <div class="projection-note">
                             <i class="fas fa-info-circle"></i>
                             <span>Valores consideram crescimento anual de <span id="crescimentoDisplay">20%</span> ao ano. 
@@ -1217,8 +1232,7 @@
                                 <li>ECG: 1 MB</li>
                                 <li>Ultrassom (US): 8 MB</li>
                                 <li>Doppler (US): 12 MB</li>
-                                <li>Endoscopia (ES): 7 MB</li>
-                                <li>Pet/CT: 15 MB</li>
+                                <li>Cintilografia: 10-15 MB</li>
                                 <li>Oftalmologia: 2 MB</li>
                             </ul>
                         </div>
@@ -1230,16 +1244,21 @@
                                 <li>Tomografia (CT): 180 MB</li>
                                 <li>Ressonância Magnética (MR): 100 MB</li>
                                 <li>X-Angio (XA): 80 MB</li>
+                                <li>Endoscopia (sem vídeo): 50-100 MB</li>
                             </ul>
                         </div>
                         
                         <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                            <strong>Exames com Muitas Imagens:</strong>
+                            <strong>Exames Complexos (300-2000 MB):</strong>
                             <ul style="margin-top: 8px; margin-left: 20px;">
-                                <li>Tomografia (CT): 1000 imagens - 180 MB</li>
-                                <li>Ressonância (MR): 700 imagens - 100 MB</li>
-                                <li>Pet/CT: 400 imagens - 15 MB</li>
+                                <li>Tomografia (CT) com contraste: 400-800 MB</li>
+                                <li>Endoscopia com vídeo: 500-800 MB</li>
+                                <li>Medicina Nuclear (PET/CT): 15-50 MB</li>
                             </ul>
+                        </div>
+                        
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.9rem; color: var(--gray);">
+                            <i class="fas fa-info-circle"></i> Nota: Cintilografia e Medicina Nuclear produzem imagens funcionais com tamanhos menores que exames anatômicos [citation:1][citation:8].
                         </div>
                     </div>
                 </div>
@@ -1363,17 +1382,19 @@
     </div>
 
     <script>
-        // Dados das modalidades médicas baseados na tabela fornecida
+        // Dados das modalidades médicas baseados na tabela fornecida + NOVAS MODALIDADES
         const modalidadesPadrao = [
             { id: 'cr', nome: 'Raio-X (CR)', tamanhoMB: 10, icone: 'fas fa-bone' },
             { id: 'do', nome: 'Densitometria Óssea (DO)', tamanhoMB: 1, icone: 'fas fa-weight' },
             { id: 'mg', nome: 'Mamografia (MG)', tamanhoMB: 20, icone: 'fas fa-female' },
             { id: 'us', nome: 'Ultrassom (US)', tamanhoMB: 8, icone: 'fas fa-wave-square' },
             { id: 'doppler', nome: 'Doppler (US)', tamanhoMB: 12, icone: 'fas fa-tachometer-alt' },
-            { id: 'es', nome: 'Endoscopia (ES)', tamanhoMB: 7, icone: 'fas fa-video' },
+            { id: 'es', nome: 'Endoscopia (ES)', tamanhoMB: 500, icone: 'fas fa-video' },
+            { id: 'cintilo', nome: 'Cintilografia', tamanhoMB: 12, icone: 'fas fa-radiation' },
+            { id: 'mn', nome: 'Medicina Nuclear', tamanhoMB: 20, icone: 'fas fa-atom' },
             { id: 'ct', nome: 'Tomografia (CT)', tamanhoMB: 180, icone: 'fas fa-cogs' },
             { id: 'mr', nome: 'Ressonância Magnética (MR)', tamanhoMB: 100, icone: 'fas fa-magnet' },
-            { id: 'petct', nome: 'Pet/CT', tamanhoMB: 15, icone: 'fas fa-radiation' },
+            { id: 'petct', nome: 'PET/CT', tamanhoMB: 15, icone: 'fas fa-radiation' },
             { id: 'xa', nome: 'X-Angio (XA)', tamanhoMB: 80, icone: 'fas fa-heart' },
             { id: 'ecg', nome: 'ECG', tamanhoMB: 1, icone: 'fas fa-heartbeat' },
             { id: 'oftalmo', nome: 'Oftalmologia', tamanhoMB: 2, icone: 'fas fa-eye' }
@@ -1410,6 +1431,9 @@
                                modalidade.id === 'cr' ? 200 : 
                                modalidade.id === 'us' ? 150 : 
                                modalidade.id === 'doppler' ? 80 :
+                               modalidade.id === 'es' ? 40 :
+                               modalidade.id === 'cintilo' ? 60 :
+                               modalidade.id === 'mn' ? 45 :
                                modalidade.id === 'xa' ? 40 : 80;
                 
                 item.innerHTML = `
@@ -1561,9 +1585,9 @@
             }
         }
         
-        // Função para calcular projeções de longo prazo
+        // Função para calcular projeções de longo prazo - AGORA COM 1 ANO INCLUÍDO
         function calcularProjecoes(gbMes, crescimento, custoPorGB) {
-            const periodos = [3, 5, 10, 20];
+            const periodos = [1, 3, 5, 10, 20]; // 1 ano adicionado
             const projecoes = [];
             
             periodos.forEach(anos => {
@@ -1706,12 +1730,13 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const costComparison = document.getElementById('costComparison');
             const expansionCosts = document.getElementById('expansionCosts');
-            const projectionContainer = document.getElementById('projectionContainer');
+            const projectionContainerShort = document.getElementById('projectionContainerShort');
+            const projectionContainerLong = document.getElementById('projectionContainerLong');
             const detailsSection = document.getElementById('detailsSection');
             const resultsIntro = document.getElementById('resultsIntro');
             const crescimentoDisplay = document.getElementById('crescimentoDisplay');
             
-            if (!resultsContainer || !costComparison || !detailsSection || !resultsIntro || !projectionContainer) {
+            if (!resultsContainer || !costComparison || !detailsSection || !resultsIntro || !projectionContainerShort || !projectionContainerLong) {
                 console.error("Elementos de resultados não encontrados!");
                 return;
             }
@@ -1870,55 +1895,222 @@
                 </div>
             `;
             
-            // Projeções de Longo Prazo com todas as unidades
-            let projectionHTML = '';
+            // Separar projeções por período
+            const projecao1ano = projecoes.find(p => p.anos === 1);
+            const projecao3anos = projecoes.find(p => p.anos === 3);
+            const projecao5anos = projecoes.find(p => p.anos === 5);
+            const projecao10anos = projecoes.find(p => p.anos === 10);
+            const projecao20anos = projecoes.find(p => p.anos === 20);
             
-            projecoes.forEach((proj, index) => {
-                let corClasse = '';
-                if (proj.anos === 3) corClasse = 'projection-card-3y';
-                else if (proj.anos === 5) corClasse = 'projection-card-5y';
-                else if (proj.anos === 10) corClasse = 'projection-card-10y';
-                else if (proj.anos === 20) corClasse = 'projection-card-20y';
-                
-                projectionHTML += `
-                    <div class="projection-card ${corClasse}">
+            // Cards de Curto Prazo (1 e 3 anos)
+            let shortHTML = '';
+            
+            // Card de 1 ano
+            if (projecao1ano) {
+                shortHTML += `
+                    <div class="projection-card projection-card-1y">
                         <div class="projection-period">
-                            ${proj.anos} anos
-                            <span>${proj.meses} meses</span>
+                            1 ano
+                            <span>12 meses</span>
                         </div>
-                        <div class="projection-storage">${formatarNumero(proj.tbTotal, 2)}</div>
+                        <div class="projection-storage">${formatarNumero(projecao1ano.tbTotal, 2)}</div>
                         <div class="projection-storage-label">TB acumulados</div>
                         
                         <div class="projection-units">
                             <div class="projection-unit-item">
                                 <span class="projection-unit-label">GB acumulados:</span>
-                                <span class="projection-unit-value">${formatarInteiro(proj.gbTotal)} GB</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao1ano.gbTotal)} GB</span>
                             </div>
                             <div class="projection-unit-item">
                                 <span class="projection-unit-label">MB acumulados:</span>
-                                <span class="projection-unit-value">${formatarInteiro(proj.mbTotal)} MB</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao1ano.mbTotal)} MB</span>
                             </div>
                         </div>
                         
                         <div class="projection-cost">
                             <div class="projection-cost-item">
                                 <span>Custo Total:</span>
-                                <span style="color: #4dffb8; font-weight: 700;">R$ ${proj.custoTotalFormatado}</span>
+                                <span style="color: #4dffb8; font-weight: 700;">R$ ${projecao1ano.custoTotalFormatado}</span>
                             </div>
                             <div class="projection-cost-item">
                                 <span>Custo médio/mês:</span>
-                                <span>R$ ${formatarNumero(proj.custoTotal / proj.meses, 2)}</span>
+                                <span>R$ ${formatarNumero(projecao1ano.custoTotal / 12, 2)}</span>
                             </div>
                             <div class="projection-cost-item">
                                 <span>GB/mês (média):</span>
-                                <span>${formatarInteiro(proj.gbTotal / proj.meses)} GB</span>
+                                <span>${formatarInteiro(projecao1ano.gbTotal / 12)} GB</span>
                             </div>
                         </div>
                     </div>
                 `;
-            });
+            }
             
-            projectionContainer.innerHTML = projectionHTML;
+            // Card de 3 anos
+            if (projecao3anos) {
+                shortHTML += `
+                    <div class="projection-card projection-card-3y">
+                        <div class="projection-period">
+                            3 anos
+                            <span>36 meses</span>
+                        </div>
+                        <div class="projection-storage">${formatarNumero(projecao3anos.tbTotal, 2)}</div>
+                        <div class="projection-storage-label">TB acumulados</div>
+                        
+                        <div class="projection-units">
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">GB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao3anos.gbTotal)} GB</span>
+                            </div>
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">MB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao3anos.mbTotal)} MB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="projection-cost">
+                            <div class="projection-cost-item">
+                                <span>Custo Total:</span>
+                                <span style="color: #4dffb8; font-weight: 700;">R$ ${projecao3anos.custoTotalFormatado}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>Custo médio/mês:</span>
+                                <span>R$ ${formatarNumero(projecao3anos.custoTotal / 36, 2)}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>GB/mês (média):</span>
+                                <span>${formatarInteiro(projecao3anos.gbTotal / 36)} GB</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            projectionContainerShort.innerHTML = shortHTML;
+            
+            // Cards de Longo Prazo (5, 10 e 20 anos)
+            let longHTML = '';
+            
+            // Card de 5 anos
+            if (projecao5anos) {
+                longHTML += `
+                    <div class="projection-card projection-card-5y">
+                        <div class="projection-period">
+                            5 anos
+                            <span>60 meses</span>
+                        </div>
+                        <div class="projection-storage">${formatarNumero(projecao5anos.tbTotal, 2)}</div>
+                        <div class="projection-storage-label">TB acumulados</div>
+                        
+                        <div class="projection-units">
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">GB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao5anos.gbTotal)} GB</span>
+                            </div>
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">MB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao5anos.mbTotal)} MB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="projection-cost">
+                            <div class="projection-cost-item">
+                                <span>Custo Total:</span>
+                                <span style="color: #4dffb8; font-weight: 700;">R$ ${projecao5anos.custoTotalFormatado}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>Custo médio/mês:</span>
+                                <span>R$ ${formatarNumero(projecao5anos.custoTotal / 60, 2)}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>GB/mês (média):</span>
+                                <span>${formatarInteiro(projecao5anos.gbTotal / 60)} GB</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Card de 10 anos
+            if (projecao10anos) {
+                longHTML += `
+                    <div class="projection-card projection-card-10y">
+                        <div class="projection-period">
+                            10 anos
+                            <span>120 meses</span>
+                        </div>
+                        <div class="projection-storage">${formatarNumero(projecao10anos.tbTotal, 2)}</div>
+                        <div class="projection-storage-label">TB acumulados</div>
+                        
+                        <div class="projection-units">
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">GB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao10anos.gbTotal)} GB</span>
+                            </div>
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">MB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao10anos.mbTotal)} MB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="projection-cost">
+                            <div class="projection-cost-item">
+                                <span>Custo Total:</span>
+                                <span style="color: #4dffb8; font-weight: 700;">R$ ${projecao10anos.custoTotalFormatado}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>Custo médio/mês:</span>
+                                <span>R$ ${formatarNumero(projecao10anos.custoTotal / 120, 2)}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>GB/mês (média):</span>
+                                <span>${formatarInteiro(projecao10anos.gbTotal / 120)} GB</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Card de 20 anos
+            if (projecao20anos) {
+                longHTML += `
+                    <div class="projection-card projection-card-20y">
+                        <div class="projection-period">
+                            20 anos
+                            <span>240 meses</span>
+                        </div>
+                        <div class="projection-storage">${formatarNumero(projecao20anos.tbTotal, 2)}</div>
+                        <div class="projection-storage-label">TB acumulados</div>
+                        
+                        <div class="projection-units">
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">GB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao20anos.gbTotal)} GB</span>
+                            </div>
+                            <div class="projection-unit-item">
+                                <span class="projection-unit-label">MB acumulados:</span>
+                                <span class="projection-unit-value">${formatarInteiro(projecao20anos.mbTotal)} MB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="projection-cost">
+                            <div class="projection-cost-item">
+                                <span>Custo Total:</span>
+                                <span style="color: #4dffb8; font-weight: 700;">R$ ${projecao20anos.custoTotalFormatado}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>Custo médio/mês:</span>
+                                <span>R$ ${formatarNumero(projecao20anos.custoTotal / 240, 2)}</span>
+                            </div>
+                            <div class="projection-cost-item">
+                                <span>GB/mês (média):</span>
+                                <span>${formatarInteiro(projecao20anos.gbTotal / 240)} GB</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            projectionContainerLong.innerHTML = longHTML;
             
             // Detalhes por modalidade
             if (detalhes.length > 0) {
@@ -1987,13 +2179,15 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const costComparison = document.getElementById('costComparison');
             const expansionCosts = document.getElementById('expansionCosts');
-            const projectionContainer = document.getElementById('projectionContainer');
+            const projectionContainerShort = document.getElementById('projectionContainerShort');
+            const projectionContainerLong = document.getElementById('projectionContainerLong');
             const detailsSection = document.getElementById('detailsSection');
             
             if (resultsContainer) resultsContainer.innerHTML = '';
             if (costComparison) costComparison.innerHTML = '';
             if (expansionCosts) expansionCosts.innerHTML = '';
-            if (projectionContainer) projectionContainer.innerHTML = '';
+            if (projectionContainerShort) projectionContainerShort.innerHTML = '';
+            if (projectionContainerLong) projectionContainerLong.innerHTML = '';
             if (detailsSection) detailsSection.innerHTML = '';
             
             mostrarMensagem('Campos limpos com sucesso!', 'info');
